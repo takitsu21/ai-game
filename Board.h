@@ -8,20 +8,27 @@
 class Board
 {
 private:
-	int casePlayer[SIZE];
-	int caseOrdi[SIZE];
+	int caseJ2[SIZE];
+	int caseJ1[SIZE];
 
-	bool isAIPlaying;
-	int playerPieces;
-	int AIPieces;
+	bool isJ1;
+	int J2Pieces;
+	int J1Pieces;
 
 public:
 	Board();
 	~Board();
 	void printCases();
-	int* getCasePlayer();
+	int* getCaseJ2();
+	int* getCaseJ1();
+	bool getIsJ1();
+	void setIsJ1(bool isJ1);
 	int minMax(Board currentBoard, int depth, int depthMax);
 	int evaluate();
+	void play(int coup);
+	bool isEnd();
+	int* switchPlayer(bool* isCaseJ1);
+	void setNextPlayer();
 };
 
 #endif
