@@ -11,7 +11,7 @@ Board::Board()
         caseJ1[i] = 4;
         caseJ2[i] = 4;
     }
-    isJ1 = false;
+    isJ1 = true;
     J2Pieces = 0;
     J1Pieces = 0;
 }
@@ -129,7 +129,8 @@ void Board::play(int coup) {
         printf("index : %d %d %p\n", index, isCaseJ1, &currentCase);
         seeds--;
     }
-
+    eatSeeds(index, currentCase, isCaseJ1);
+    return true;
 }
 
 
@@ -159,4 +160,31 @@ bool Board::isEnd()
 void Board::setNextPlayer()
 {
     isJ1 = !isJ1;
+}
+
+bool Board::checkValidMove(const int *currentCase, int move) {
+    return currentCase[move] > 0 && move >= 0 && move <= 5;
+}
+
+void Board::eatSeeds(int index, int *currentCase, bool isCaseJ1) {
+    if (getIsJ1() == isCaseJ1) {
+        return;
+    }
+    while (index >= 0) {
+        if (currentCase[index] == 2 || currentCase[index] == 3) {
+            addPieces(currentCase[index]);
+            currentCase[index] = 0;
+        } else {
+            break;
+        }
+        index--;
+    }
+}
+
+void Board::addPieces(int pieces) {
+    if (isJ1) {
+        J1Pieces += pieces;
+    } else {
+        J2Pieces += pieces;
+    }
 }
