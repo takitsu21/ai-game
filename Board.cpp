@@ -1,12 +1,10 @@
 #include "Board.h"
 
-int Board::minMax(Board currentBoard, int depth, int depthMax)
-{
+int Board::minMax(Board currentBoard, int depth, int depthMax) {
     return 0;
 }
 
-Board::Board()
-{
+Board::Board() {
     for (int i = 0; i < SIZE; i++) {
         caseJ1[i] = 4;
         caseJ2[i] = 4;
@@ -16,117 +14,84 @@ Board::Board()
     J1Pieces = 0;
 }
 
-Board::~Board()
-{
+Board::~Board() {
 
 }
 
-int* Board::getCaseJ2()
-{
+int *Board::getCaseJ2() {
     return caseJ2;
 }
 
-int* Board::getCaseJ1()
-{
+int *Board::getCaseJ1() {
     return caseJ1;
 }
 
-void Board::printCases()
-{
+void Board::printCases() {
     printf("\n Nouveau tour: \n");
-    printf("J1 ");
-    for (int i = 0; i < SIZE; i++)
-    {
-        printf("[%d] ", caseJ1[i]);
-    }
-    printf("\nNp ");
-    for (int i = 0; i < SIZE; i++)
-    {
-        printf(" %d  ", i);
-    }
 
-    printf("\n\n");
+    printf("pieces J1 : %d, pieces J2 : %d\n", J1Pieces, J2Pieces);
     printf("J2 ");
-    for (int i = 0; i < SIZE; i++)
-    {
+    for (int i = SIZE - 1; i >= 0; i--) {
         printf("[%d] ", caseJ2[i]);
     }
     printf("\nNp ");
-    for (int i = 0; i < SIZE; i++)
-    {
+    for (int i = SIZE - 1; i >= 0; i--) {
+        printf(" %d  ", i);
+    }
+    printf("\n\n");
+    printf("J1 ");
+    for (int i = 0; i < SIZE; i++) {
+        printf("[%d] ", caseJ1[i]);
+    }
+    printf("\nNp ");
+    for (int i = 0; i < SIZE; i++) {
         printf(" %d  ", i);
     }
 }
 
 
-bool Board::getIsJ1()
-{
+bool Board::getIsJ1() {
     return isJ1;
 }
 
 
-void Board::setIsJ1(bool isPlaying)
-{
+void Board::setIsJ1(bool isPlaying) {
     isJ1 = isPlaying;
 }
 
 
-void Board::play(int coup) {
+bool Board::play(int move) {
     int seeds;
-    int* currentCase;
+    int *currentCase;
     bool isCaseJ1;
 
-    if (isJ1)
-    {
-        seeds = caseJ1[coup];
+    if (isJ1) {
+        seeds = caseJ1[move];
         currentCase = getCaseJ1();
         isCaseJ1 = true;
-    }
-    else
-    {
-        seeds = caseJ2[coup];
+    } else {
+        seeds = caseJ2[move];
         currentCase = getCaseJ2();
         isCaseJ1 = false;
     }
 
-    int index = coup;
-    int desc = false;
-    currentCase[coup] = 0;
+    if (!checkValidMove(currentCase, move)) {
+        printf("Coup invalide\n");
+        return false;
+    }
 
-    while (seeds > 0)
-    {
+    int index = move;
+    currentCase[move] = 0;
 
-        if (desc)
-        {
-            if (index <= 0)
-            {
-                // index de change pas
-                desc = false;
-                currentCase = switchPlayer(&isCaseJ1);
-                currentCase[index]++;
-            }
-            else
-            {
-                index--;
-                currentCase[index]++;
-            }
+    while (seeds > 0) {
+        if (index >= SIZE - 1) {
+            index = 0;
+            currentCase = switchPlayer(&isCaseJ1);
+            currentCase[index]++;
+        } else {
+            index++;
+            currentCase[index]++;
         }
-        else
-        {
-            if (index >= SIZE - 1)
-            {
-                // index de change pas
-                desc = true;
-                currentCase = switchPlayer(&isCaseJ1);
-                currentCase[index]++;
-            }
-            else
-            {
-                index++;
-                currentCase[index]++;
-            }
-        }
-        printf("index : %d %d %p\n", index, isCaseJ1, &currentCase);
         seeds--;
     }
     eatSeeds(index, currentCase, isCaseJ1);
@@ -134,31 +99,26 @@ void Board::play(int coup) {
 }
 
 
-int* Board::switchPlayer(bool* isCaseJ1) {
+int *Board::switchPlayer(bool *isCaseJ1) {
 
     if (*isCaseJ1) {
-        printf("switch to j2");
         *isCaseJ1 = !(*isCaseJ1);
         return getCaseJ2();
-    }
-    else {
-        printf("switch else\n");
+    } else {
         *isCaseJ1 = !(*isCaseJ1);
         return getCaseJ1();
     }
 }
 
 
-bool Board::isEnd()
-{
+bool Board::isEnd() {
     if (isJ1) {
         return J1Pieces >= 25;
     }
     return J2Pieces >= 25;
 }
 
-void Board::setNextPlayer()
-{
+void Board::setNextPlayer() {
     isJ1 = !isJ1;
 }
 
