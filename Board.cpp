@@ -10,9 +10,7 @@ bool isEmpty(const int* currentCase) {
 }
 
 
-int Board::minMax(Board currentBoard, int depth, int depthMax) {
-    return 0;
-}
+
 
 Board::Board() {
     for (int i = 0; i < SIZE; i++) {
@@ -62,7 +60,7 @@ void Board::printCases() {
     for (int i = SIZE - 1; i >= 0; i--) {
         printf(" %d  ", i);
     }
-    printf("\n\n");
+    printf("\n---------------------------\n");
     printf("J1 ");
     for (int i = 0; i < SIZE; i++) {
         printf("|%d|-", caseJ1[i]);
@@ -99,7 +97,6 @@ bool Board::play(int move) {
         return false;
     }
 
-    int index = move;
     currentCase[move] = 0;
     int index = move;
 
@@ -176,4 +173,9 @@ void Board::addPieces(int pieces) {
     } else {
         J2Pieces += pieces;
     }
+}
+
+
+int Board::evaluate() const {
+    return J2Pieces - J1Pieces;
 }

@@ -31,11 +31,7 @@ public:
 
     void addPieces(int pieces);
 
-    void setIsJ1(bool isJ1);
-
-    int minMax(Board currentBoard, int depth, int depthMax);
-
-    int evaluate();
+    int evaluate() const;
 
     bool play(int move);
 
@@ -48,6 +44,8 @@ public:
     static bool checkValidMove(const int* currentCase, int move);
 
     void eatSeeds(int index, int* currentCase, bool isCaseJ1);
+
+    Board copy();
 };
 
 #endif

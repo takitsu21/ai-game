@@ -34,6 +34,59 @@ void printTab(int* tab) {
     printf("\n");
 }
 
+int minMax(Board currentBoard, bool AIPlaying, int depth, int depthMax) {
+    int *currentCase;
+    int tabValues[SIZE];
+    if (currentBoard.isEnd()) {
+        if (!AIPlaying) {
+            return -25;
+        } else {
+            return 25;
+        }
+    }
+    if (depth == depthMax) {
+        return currentBoard.evaluate();
+    }
+    if (AIPlaying) {
+        currentCase = currentBoard.getCaseJ1();
+    } else {
+        currentCase = currentBoard.getCaseJ2();
+    }
+
+
+    for (int i = 0; i < SIZE; i++) {
+        Board nextBoard = currentBoard.copy();
+        if (Board::checkValidMove(currentCase, i)) {
+            if (nextBoard.play(i)) {
+                nextBoard.setNextPlayer();
+            }
+//            printf("\n\n\n---------------------------\n\n\n");
+//            printf("depth = %d, move = %d\n", depth, i);
+//            nextBoard.printCases();
+//            printf("\n\n\n---------------------------\n\n\n");
+            tabValues[i] = minMax(nextBoard, !AIPlaying, depth + 1, depthMax);
+        } else {
+            if (AIPlaying) {
+                tabValues[i] = -100;
+            } else {
+                tabValues[i] = 100;
+            }
+        }
+    }
+
+    int res;
+    if (AIPlaying) {
+//        printf("\nTABVALUE MAX: ");
+//        printTab(tabValues);
+        res = maxFromArray(tabValues);
+    } else {
+//        printf("\nTABVALUE MIN: ");
+//        printTab(tabValues);
+        res = minFromArray(tabValues);
+    }
+    return res;
+}
+
 
 int inputPlayer(bool isJ1) {
     if (isJ1) {
@@ -47,8 +100,7 @@ int inputPlayer(bool isJ1) {
 }
 
 
-void loop(Board board) {
-
+void gameLoop(Board board) {
     while (!board.isEnd()) {
         board.printCases();
         int x;
@@ -64,6 +116,8 @@ void loop(Board board) {
         validMove = board.play(x);
         if (validMove) {
             board.setNextPlayer();
+        } else {
+            printf("INVALID !");
         }
     }
 
@@ -77,6 +131,6 @@ void loop(Board board) {
 
 int main() {
     Board board = Board();
-    loop(board);
+    gameLoop(board);
     return EXIT_SUCCESS;
 }
