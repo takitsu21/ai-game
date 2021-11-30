@@ -34,9 +34,10 @@ void printTab(int* tab) {
     printf("\n");
 }
 
-int minMax(Board currentBoard, bool AIPlaying, int depth, int depthMax) {
+int minMax(Board currentBoard, bool AIPlaying, int depth, int depthMax, long long* acc) {
     int *currentCase;
     int tabValues[SIZE];
+    *acc = *acc + 1;
     if (currentBoard.isEnd()) {
         if (!AIPlaying) {
             return -25;
@@ -64,7 +65,7 @@ int minMax(Board currentBoard, bool AIPlaying, int depth, int depthMax) {
 //            printf("depth = %d, move = %d\n", depth, i);
 //            nextBoard.printCases();
 //            printf("\n\n\n---------------------------\n\n\n");
-            tabValues[i] = minMax(nextBoard, !AIPlaying, depth + 1, depthMax);
+            tabValues[i] = minMax(nextBoard, !AIPlaying, depth + 1, depthMax, acc);
         } else {
             if (AIPlaying) {
                 tabValues[i] = -100;
@@ -106,8 +107,9 @@ void gameLoop(Board board) {
         int x;
         bool validMove;
         if (board.getIsJ1()) {
-            x = minMax(board, board.getIsJ1(), 0, 7);
-            printf("\n\nJ1 IA minMax : %d\n\n", x);
+            long long acc = 0;
+            x = minMax(board, board.getIsJ1(), 0, 10, &acc);
+            printf("\n\nJ1 IA minMax : %d, nb noeuds parcouru = %lld\n\n", x, acc);
         }
         else {
             x = inputPlayer(board.getIsJ1());
