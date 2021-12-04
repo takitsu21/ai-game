@@ -9,15 +9,19 @@
 
 class Board {
 private:
-    int caseJ2[SIZE];
-    int caseJ1[SIZE];
+
+    Case boardCase[SIZE]; //J1 PAIR dans le CODE, mais IMPAIR dans le print !!!!!!
 
     bool isJ1Turn;
     int J2Pieces;
     int J1Pieces;
+    int nbSeeds;
+    int nbJ1Seeds;
+    int nbJ2Seeds;
 
 public:
     Board();
+    Board(bool test);
 
     ~Board();
 
@@ -33,13 +37,9 @@ public:
 
     bool play(int move, bool isRed);
 
-    bool isEnd();
+    bool isEnd() const;
 
-    int *switchPlayer(bool *isCaseJ1);
-
-    void setNextPlayer();
-
-    static bool checkValidMove(const int* currentCase, int move);
+    bool checkValidMove(int move, bool isRed);
 
     void eatSeeds(int index);
 
