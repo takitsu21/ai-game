@@ -3,7 +3,6 @@
 #include <iostream>
 #include "src/Board.h"
 #include <ctime>
-#include <math.h>
 #include <string>
 #define TAB_VALUES_SIZE 32
 
