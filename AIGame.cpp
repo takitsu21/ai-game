@@ -34,10 +34,10 @@ int minFromArray(const int *tabValues, int from, int to) {
 }
 
 void printTab(int *tab) {
-    for (int i = 0; i < SIZE; i++) {
+    for (int i = 0; i < TAB_VALUES_SIZE; i++) {
         printf(" [%d] ", tab[i]);
     }
-    printf("\n");
+    printf("\n\n\n------------------------------------\n\n\n");
 }
 
 int minMax(Board currentBoard, bool AIPlaying, int depth, int depthMax, long long* acc) {
@@ -97,6 +97,8 @@ int minMax(Board currentBoard, bool AIPlaying, int depth, int depthMax, long lon
         }
     }
 
+    int res_red;
+    int res_blue;
     int res;
     if (AIPlaying) {
         res_red = maxFromArray(tabValues, 0, SIZE);
@@ -107,7 +109,8 @@ int minMax(Board currentBoard, bool AIPlaying, int depth, int depthMax, long lon
         res_blue = minFromArray(tabValues, SIZE, TAB_VALUES_SIZE);
         res = min(res_red, res_blue);
     }
-
+    printf("\n");
+    printTab(tabValues);
     return res;
 }
 
@@ -256,10 +259,23 @@ void gameLoop(Board board) {
             }
 
         } else {
-            string s = inputPlayer(board.getIsJ1Turn());
-            pair<int, bool> res = parse(s);
-            x = res.first;
-            isRed = res.second;
+//            string s = inputPlayer(board.getIsJ1Turn());
+//            pair<int, bool> res = parse(s);
+//            x = res.first;
+//            isRed = res.second;
+            long long acc = 0;
+            clock_t time_req = clock();
+            x = minMax(board, true, 0, 2, &acc);
+            if (x < SIZE) {
+                isRed = true;
+                printf("\n\nJ2 IA minMax : joue la case %dR, nb noeuds parcouru = %lld en %.3f seconds\n\n", x+1, acc,
+                       (float)(clock() - time_req)/CLOCKS_PER_SEC);
+            } else {
+                isRed = false;
+                x -= SIZE;
+                printf("\n\nJ2 IA minMax : joue la case %dB, nb noeuds parcouru = %lld en %.3f seconds\n\n", x+1, acc,
+                       (float)(clock() - time_req)/CLOCKS_PER_SEC);
+            }
         }
         if (x == -1) {
             cout << "Coup invalide !" << endl;

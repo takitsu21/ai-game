@@ -46,7 +46,7 @@ void Board::printCases() {
 
     for (int i = 0; i < SIZE / 2; i++) {
         printf("|%dR %dB| ",
-               boardCase[i].getNbRed(), boardCase[i].getNbBlue());
+               redCase[i], blueCase[i]);
     }
     printf("\n");
     for (int i = 1; i <= SIZE / 2; i++) {
@@ -56,7 +56,7 @@ void Board::printCases() {
 
     for (int i = SIZE - 1; i >= SIZE / 2; i--) {
         printf("|%dR %dB| ",
-               boardCase[i].getNbRed(), boardCase[i].getNbBlue());
+               redCase[i], blueCase[i]);
     }
 
     printf("\n");
@@ -79,11 +79,11 @@ bool Board::play(int move, bool isRed) {
         return false;
     }
     if (isRed) {
-        seeds = boardCase[move].getNbRed();
-        boardCase[move].setNbRed(0);
+        seeds = redCase[move];
+        redCase[move] = 0;
     } else {
-        seeds = boardCase[move].getNbBlue();
-        boardCase[move].setNbBlue(0);
+        seeds = blueCase[move];
+        blueCase[move] = 0;
     }
 
     int index = move;
@@ -92,11 +92,11 @@ bool Board::play(int move, bool isRed) {
     while (seeds > 0) {
 
         if (isRed) { // sur toutes les cases
-            if (index == move) {
-                index++;
-            }
             if (start) {
                 start = false;
+                index++;
+            }
+            if (index == move) {
                 index++;
             }
             if (index >= SIZE) {
@@ -135,7 +135,7 @@ bool Board::play(int move, bool isRed) {
         if (isJ1Case[i]) {
             nbJ1Seeds = blueCase[i] + redCase[i];
         } else {
-            nbJ2Seeds = c.getNbBlue() + c.getNbRed();
+            nbJ2Seeds = blueCase[i] + redCase[i];
         }
     }
     return true;
@@ -155,8 +155,8 @@ bool Board::checkValidMove(int move, bool isRed) {
         if ((isRed && redCase[move] > 0)
             || (!isRed && blueCase[move] > 0)) { // si le pot de couleur selectionner n'est pas vide
 
-            if ((isJ1Turn && boardCase[move].getIsJ1())
-                || (!isJ1Turn && !boardCase[move].getIsJ1())) { // si j1 turn et il joue danssa case alors oui, idem j2
+            if ((isJ1Turn && isJ1Case[move])
+                || (!isJ1Turn && !isJ1Case[move])) { // si j1 turn et il joue danssa case alors oui, idem j2
                 return true;
             }
         }
@@ -172,11 +172,11 @@ void Board::eatSeeds(int index) {
         if (index < 0) {
             index = SIZE - 1;
         }
-        int total = boardCase[index].getTotal();
+        int total = redCase[index] + blueCase[index];
         if (total == 3 || total == 2) {
             gain += total;
-            boardCase[index].setNbBlue(0);
-            boardCase[index].setNbRed(0);
+            blueCase[index] = 0;
+            redCase[index] = 0;
         } else {
             cond = false;
         }
