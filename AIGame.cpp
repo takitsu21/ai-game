@@ -38,12 +38,11 @@ void printTab(int* tab) {
 }
 
 int minMax(Board currentBoard, bool AIPlaying, int depth, int depthMax, long long* acc) {
-    int *currentCase;
-    int tabValues[SIZE];
+    int tabValues[TAB_VALUES_SIZE];
     *acc = *acc + 1;
     if (currentBoard.isEnd()) {
         if (!AIPlaying) {
-            return -25;
+            return -33;
         } else {
             return 25;
         }
@@ -80,14 +79,11 @@ int minMax(Board currentBoard, bool AIPlaying, int depth, int depthMax, long lon
 
     int res;
     if (AIPlaying) {
-//        printf("\nTABVALUE MAX: ");
-//        printTab(tabValues);
         res = maxFromArray(tabValues);
     } else {
-//        printf("\nTABVALUE MIN: ");
-//        printTab(tabValues);
         res = minFromArray(tabValues);
     }
+
     return res;
 }
 
@@ -158,6 +154,24 @@ int inputPlayer(bool isJ1) {
     return x;
 }
 
+void winner(Board board) {
+    // famine
+    if (board.getNbJ1Seeds() == 0) {
+        printf("J2 WIN\n");
+    } else if (board.getNbJ2Seeds() == 0) {
+        printf("J1 WIN\n");
+    }
+        // nb pièces
+    else if (board.getNbJ1Pieces() > 32) {
+        printf("J1 WIN\n");
+    } else if (board.getNbJ2Pieces() > 32) {
+        printf("J2 WIN\n");
+    } else if (board.getNbJ1Pieces() == 32 && board.getNbJ2Pieces() == 32) {
+        printf("DRAW\n");
+    } else {
+        printf("win ??");
+    }
+}
 
 void gameLoop(Board board) {
     while (!board.isEnd()) {
@@ -184,11 +198,8 @@ void gameLoop(Board board) {
     }
     board.printCases(); // etat final du jeu
     printf("\n");
-    if (board.getIsJ1()) {
-        printf("J1 win\n");
-    } else {
-        printf("J2 win\n");
-    }
+
+    winner(board);
 }
 
 int alphaBetaValue(Board currentBoard, bool AIPlaying, int alpha, int beta, bool isMax, int depthMax) {

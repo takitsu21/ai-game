@@ -1,18 +1,18 @@
 #ifndef BOARD_H
 
 #include <iostream>
+#include "case.h"
 
 #pragma once
-#define SIZE 6
+#define SIZE 16
+#define MAX_SEEDS 64
 
-
-// on verra si c'est n�cessaire d'utiliser une class ou plutot une struct en terme de perf
 class Board {
 private:
     int caseJ2[SIZE];
     int caseJ1[SIZE];
 
-    bool isJ1;
+    bool isJ1Turn;
     int J2Pieces;
     int J1Pieces;
 
@@ -23,17 +23,15 @@ public:
 
     void printCases();
 
-    int *getCaseJ2();
+    Case *getBoardCase();
 
-    int *getCaseJ1();
-
-    bool getIsJ1();
+    bool getIsJ1Turn();
 
     void addPieces(int pieces);
 
-    int evaluate() const;
+    int evaluate(bool AIPlaying) const;
 
-    bool play(int move);
+    bool play(int move, bool isRed);
 
     bool isEnd();
 
@@ -43,7 +41,17 @@ public:
 
     static bool checkValidMove(const int* currentCase, int move);
 
-    void eatSeeds(int index, int* currentCase, bool isCaseJ1);
+    void eatSeeds(int index);
+
+    void nextPlayer();
+
+    int getNbJ1Seeds() const;
+
+    int getNbJ2Seeds() const;
+
+    int getNbJ1Pieces() const;
+
+    int getNbJ2Pieces() const;
 
     Board copy();
 };

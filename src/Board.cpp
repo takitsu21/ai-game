@@ -9,9 +9,6 @@ bool isEmpty(const int* currentCase) {
     return true;
 }
 
-
-
-
 Board::Board() {
     for (int i = 0; i < SIZE; i++) {
         caseJ1[i] = 4;
@@ -22,6 +19,9 @@ Board::Board() {
     J1Pieces = 0;
 
 }
+
+Board::Board(bool test) {}
+
 
 Board Board::copy() {
     Board b = Board();
