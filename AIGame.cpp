@@ -106,7 +106,7 @@ int minMax(Board &currentBoard, bool AIPlaying, int depth, int depthMax, long lo
     *acc = *acc + 1;
 
     if (currentBoard.isEnd() || depth == depthMax) {
-        return currentBoard.evaluate(AIPlaying);
+        return currentBoard.evaluate(isJ1);
     }
 
     for (int i = 0; i < SIZE; i++) {
@@ -119,6 +119,9 @@ int minMax(Board &currentBoard, bool AIPlaying, int depth, int depthMax, long lo
                     nextBoard.nextPlayer();
                 }
                 int move = minMax(nextBoard, !AIPlaying, depth + 1, depthMax, acc, isJ1);
+//                if (move == 64) {
+//                    move -= depth;
+//                }
                 if (color_bool) { // if red tabvalues < 16
                     tabValues[i] = move;
                 } else { // if blue tabvalues >= 16
@@ -267,7 +270,7 @@ void gameLoop(Board board) {
             // JOUEUR IA
             long long acc = 0;
             clock_t time_req = clock();
-            x = minMax(board, true, 0, 5, &acc, true);
+            x = minMax(board, true, 0, 2, &acc, true);
             if (x < SIZE) {
                 isRed = true;
                 printf("\n\nJ1 IA minMax : joue la case %dR, nb noeuds parcouru = %lld en %.3f seconds\n\n", x + 1, acc,
