@@ -5,7 +5,7 @@ Board::Board() {
     for (int i = 0; i < SIZE; i++) {
         redCase[i] = 2;
         blueCase[i] = 2;
-        isJ1Case[i] = i%2 == 0;
+        isJ1Case[i] = i % 2 == 0;
     }
     nbJ1Seeds = 32;
     nbJ2Seeds = 32;
@@ -17,7 +17,7 @@ Board::Board() {
 
 Board::Board(bool test) {}
 
-Board::Board(const Board& obj) {
+Board::Board(const Board &obj) {
     for (int i = 0; i < SIZE; i++) {
         redCase[i] = obj.redCase[i];
         blueCase[i] = obj.blueCase[i];
@@ -214,31 +214,34 @@ void Board::addPieces(int pieces) {
 
 
 int Board::evaluate(bool isJ1) const {
-    int x = 0;
-
-    if (isJ1 && nbJ2Seeds > 32) { // si IA J1 et elle
-        x = -64;
+    if (J1Pieces == J2Pieces) {
+        return 0;
     }
-    else if (!isJ1 && nbJ1Seeds > 32) { // si IA J2
-        x = -64;
-    }
-    else if (isJ1 && nbJ1Seeds <= 0) { // si IA J1 et plus de seeds MAUVAIS
-        x = -64;
-    }
-    else if (!isJ1 && nbJ2Seeds <= 0) { // si IA J2 et plus de seeds MAUVAIS
-        x = -64;
-    }
-    else if (isJ1 && nbJ2Seeds <= 0){ // si IA J1 et J2 plus de seeds BON
-        x = 64;
-    }
-    else if (!isJ1 && nbJ1Seeds <= 0) { // si IA J2 et J1 plus de seeds BON
-        x = 64;
-    }
-    else if (isJ1) {
-        x = J1Pieces - J2Pieces;
-    }
-    else { // pour la compréhension
-        x = J2Pieces - J1Pieces;
+    int x;
+    if (isJ1) {
+        if (J2Pieces > 32) { // si IA J1 et elle
+            x = 64;
+        } else if (J1Pieces > 32) {
+            x = -64;
+        } else if (nbJ1Seeds <= 0) { // si IA J2
+            x = 64;
+        } else if (nbJ2Seeds <= 0) {
+            x = -64;
+        } else {
+            x = J1Pieces - J2Pieces;
+        }
+    } else {
+        if (J2Pieces > 32) { // si IA J1 et elle
+            x = -64;
+        } else if (J1Pieces > 32) {
+            x = 64;
+        } else if (nbJ1Seeds <= 0) { // si IA J2
+            x = -64;
+        } else if (nbJ2Seeds <= 0) {
+            x = 64;
+        } else {
+            x = J2Pieces - J1Pieces;
+        }
     }
     return x;
 }

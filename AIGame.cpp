@@ -71,7 +71,7 @@ void printTab(int *tab) {
 }
 
 
-void winner(const Board& board) {
+void winner(const Board &board) {
     // famine
     printf("j1 seeds %d\n", board.getNbJ1Seeds());
     printf("j2 seeds %d\n", board.getNbJ2Seeds());
@@ -80,27 +80,20 @@ void winner(const Board& board) {
     printf("SEEDS %d\n", board.getNbSeeds());
     if (board.getNbJ1Pieces() > 32) {
         printf("J1 WIN\n");
-    }
-    else if (board.getNbJ2Pieces() > 32) {
+    } else if (board.getNbJ2Pieces() > 32) {
         printf("J2 WIN\n");
-    }
-    else if (board.getNbJ1Seeds() == 0) {
+    } else if (board.getNbJ1Seeds() == 0) {
         printf("J2 WIN\n");
-    }
-    else if (board.getNbJ2Seeds() == 0) {
+    } else if (board.getNbJ2Seeds() == 0) {
         printf("J1 WIN\n");
-    }
-    else if (board.getNbJ1Pieces() == 32 && board.getNbJ2Pieces() == 32) {
+    } else if (board.getNbJ1Pieces() == 32 && board.getNbJ2Pieces() == 32) {
         printf("DRAW\n");
-    }
-    else if (board.getNbSeeds() < 8) {
+    } else if (board.getNbSeeds() < 8) {
         if (board.getNbJ2Pieces() > board.getNbJ1Pieces()) {
             printf("J2 WIN\n");
-        }
-        else if (board.getNbJ2Pieces() < board.getNbJ1Pieces()) {
+        } else if (board.getNbJ2Pieces() < board.getNbJ1Pieces()) {
             printf("J1 WIN\n");
-        }
-        else {
+        } else {
             printf("DRAW\n");
         }
     } else {
@@ -108,93 +101,24 @@ void winner(const Board& board) {
     }
 }
 
-int minMax(Board& currentBoard, bool AIPlaying, int depth, int depthMax, long long *acc, bool isJ1) {
+int minMax(Board &currentBoard, bool AIPlaying, int depth, int depthMax, long long *acc, bool isJ1) {
     int tabValues[TAB_VALUES_SIZE];
     *acc = *acc + 1;
 
-    if (currentBoard.isEnd()) {
-
-        if (currentBoard.getNbJ1Pieces() == currentBoard.getNbJ2Pieces()) { // DRAW
-            return 0;
-        }
-
-        if (isJ1) {
-            if (currentBoard.getNbJ2Pieces() > 32) {
-                return -64;
-            }
-            else if (currentBoard.getNbJ1Pieces() > 32) {
-                return 64;
-            }
-
-
-            else if (currentBoard.getNbJ2Seeds() <= 0) {
-                return 64;
-            }
-            else if (currentBoard.getNbJ1Seeds() <= 0) {
-                return -64;
-            }
-
-
-            else if (currentBoard.getNbSeeds() < 8) {
-                if (currentBoard.getNbJ1Pieces() > currentBoard.getNbJ2Pieces()) {
-                    return 64;
-                }
-                else if (currentBoard.getNbJ1Pieces() < currentBoard.getNbJ2Pieces()) {
-                    return -64;
-                } else {
-                    return 0;
-                }
-            }
-        }
-        else {
-            if (currentBoard.getNbJ1Pieces() > 32) {
-                return -64;
-            }
-            else if (currentBoard.getNbJ2Pieces() > 32) {
-                return 64;
-            }
-
-
-            else if (currentBoard.getNbJ1Seeds() <= 0) {
-                return 64;
-            }
-            else if (currentBoard.getNbJ2Seeds() <= 0) {
-                return -64;
-            }
-
-            else if (currentBoard.getNbSeeds() < 8) {
-                if (currentBoard.getNbJ2Pieces() > currentBoard.getNbJ1Pieces()) {
-                    return 64;
-                } else if (currentBoard.getNbJ2Pieces() < currentBoard.getNbJ1Pieces()) {
-                    return -64;
-                } else {
-                    return 0;
-                }
-            }
-        }
-
-    }
-
-    if (depth == depthMax) {
-        return currentBoard.evaluate(isJ1);
+    if (currentBoard.isEnd() || depth == depthMax) {
+        return currentBoard.evaluate(AIPlaying);
     }
 
     for (int i = 0; i < SIZE; i++) {
         for (int color = 0; color < 2; color++) {
-            Board nextBoard = currentBoard;
+            Board nextBoard = currentBoard.copy();
             bool color_bool = color == 0;
 
             if (nextBoard.checkValidMove(i, color_bool)) {
                 if (nextBoard.play(i, color_bool)) {
                     nextBoard.nextPlayer();
                 }
-
-//            printf("\n\n\n---------------------------\n\n\n");
-//            printf("depth = %d, move = %d\n", depth, i);
-//            nextBoard.printCases();
-//            printf("\n\n\n---------------------------\n\n\n");
                 int move = minMax(nextBoard, !AIPlaying, depth + 1, depthMax, acc, isJ1);
-
                 if (color_bool) { // if red tabvalues < 16
                     tabValues[i] = move;
                 } else { // if blue tabvalues >= 16
@@ -343,7 +267,7 @@ void gameLoop(Board board) {
             // JOUEUR IA
             long long acc = 0;
             clock_t time_req = clock();
-            x = minMax(board, true, 0, 2, &acc, true);
+            x = minMax(board, true, 0, 5, &acc, true);
             if (x < SIZE) {
                 isRed = true;
                 printf("\n\nJ1 IA minMax : joue la case %dR, nb noeuds parcouru = %lld en %.3f seconds\n\n", x + 1, acc,
