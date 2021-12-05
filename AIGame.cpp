@@ -56,8 +56,8 @@ int minMax(Board currentBoard, bool AIPlaying, int depth, int depthMax, long lon
     for (int i = 0; i < SIZE; i++) {
         for (int color = 0; color < 2; color++) {
             Board nextBoard = currentBoard.copy();
-            bool color_bool = i == 1;
-//            printf("COLOR BOOL %d\n", color_bool);
+            bool color_bool = color == 0;
+
             if (nextBoard.checkValidMove(i, color_bool)) {
                 if (nextBoard.play(i, color_bool)) {
                     nextBoard.nextPlayer();
@@ -69,26 +69,23 @@ int minMax(Board currentBoard, bool AIPlaying, int depth, int depthMax, long lon
 //            printf("\n\n\n---------------------------\n\n\n");
                 int move = minMax(nextBoard, !AIPlaying, depth + 1, depthMax, acc);
 
-                if (color) { // if red tabvalues < 16
-                   tabValues[i] = move;
-                }
-                else { // if blue tabvalues >= 16
-                    tabValues[i + SIZE] = move+SIZE;
+                if (color_bool) { // if red tabvalues < 16
+                    tabValues[i] = move;
+                } else { // if blue tabvalues >= 16
+                    tabValues[i + SIZE] = move;
                 }
 
             } else {
                 if (AIPlaying) {
-                    if (color) { // if red tabvalues < 16
+                    if (color_bool) { // if red tabvalues < 16
                         tabValues[i] = -100;
-                    }
-                    else { // if blue tabvalues >= 16
+                    } else { // if blue tabvalues >= 16
                         tabValues[i + SIZE] = -100;
                     }
                 } else {
-                    if (color) { // if red tabvalues < 16
+                    if (color_bool) { // if red tabvalues 16
                         tabValues[i] = 100;
-                    }
-                    else { // if blue tabvalues >= 16
+                    } else { // if blue tabvalues >= 16
                         tabValues[i + SIZE] = 100;
                     }
                 }
@@ -96,20 +93,14 @@ int minMax(Board currentBoard, bool AIPlaying, int depth, int depthMax, long lon
         }
     }
 
-    int res_red;
-    int res_blue;
     int res;
     if (AIPlaying) {
-        res_red = maxFromArray(tabValues, 0, SIZE);
-        res_blue = maxFromArray(tabValues, SIZE, TAB_VALUES_SIZE);
-        res = max(res_red, res_blue);
+        res = maxFromArray(tabValues);
     } else {
-        res_red = minFromArray(tabValues, 0, SIZE);
-        res_blue = minFromArray(tabValues, SIZE, TAB_VALUES_SIZE);
-        res = min(res_red, res_blue);
+        res = minFromArray(tabValues);
     }
-    printf("\n");
-    printTab(tabValues);
+//    printf("\n depth %d\n", depth);
+//    printTab(tabValues, TAB_VALUES_SIZE);
     return res;
 }
 
