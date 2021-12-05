@@ -26,6 +26,7 @@ private:
 public:
     Board();
     Board(bool test);
+    Board(const Board& board);
 
     ~Board();
 
@@ -56,6 +57,7 @@ public:
     int getNbJ2Pieces() const;
 
     Board copy();
+
 };
 
 #endif

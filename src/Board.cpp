@@ -17,6 +17,19 @@ Board::Board() {
 
 Board::Board(bool test) {}
 
+Board::Board(const Board& obj) {
+    for (int i = 0; i < SIZE; i++) {
+        redCase[i] = obj.redCase[i];
+        blueCase[i] = obj.blueCase[i];
+        isJ1Case[i] = obj.isJ1Case[i];
+    }
+    nbJ1Seeds = obj.nbJ1Seeds;
+    nbJ2Seeds = obj.nbJ2Seeds;
+    nbSeeds = obj.nbSeeds;
+    isJ1Turn = obj.isJ1Turn;
+    J2Pieces = obj.J2Pieces;
+    J1Pieces = obj.J1Pieces;
+}
 
 Board Board::copy() {
     Board b = Board(true);
@@ -131,11 +144,13 @@ bool Board::play(int move, bool isRed) {
     }
 
     eatSeeds(index);
+    nbJ1Seeds = 0;
+    nbJ2Seeds = 0;
     for (int i = 0; i < SIZE; i++) {
         if (isJ1Case[i]) {
-            nbJ1Seeds = blueCase[i] + redCase[i];
+            nbJ1Seeds += blueCase[i] + redCase[i];
         } else {
-            nbJ2Seeds = blueCase[i] + redCase[i];
+            nbJ2Seeds += blueCase[i] + redCase[i];
         }
     }
     return true;

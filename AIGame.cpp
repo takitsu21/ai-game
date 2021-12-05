@@ -86,7 +86,7 @@ int minMax(Board currentBoard, bool AIPlaying, int depth, int depthMax, long lon
 
     for (int i = 0; i < SIZE; i++) {
         for (int color = 0; color < 2; color++) {
-            Board nextBoard = currentBoard.copy();
+            Board nextBoard = currentBoard;
             bool color_bool = color == 0;
 
             if (nextBoard.checkValidMove(i, color_bool)) {
