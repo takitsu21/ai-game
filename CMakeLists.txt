@@ -8,4 +8,4 @@ include_directories(.)
 add_executable(ai_game
         AIGame.cpp
         src/Board.cpp
-        src/Board.h src/Case.h src/Case.cpp)
+        src/Board.h)

@@ -1,7 +1,7 @@
 #ifndef BOARD_H
 
 #include <iostream>
-#include "case.h"
+
 
 #pragma once
 #define SIZE 16
@@ -10,7 +10,11 @@
 class Board {
 private:
 
-    Case boardCase[SIZE]; //J1 PAIR dans le CODE, mais IMPAIR dans le print !!!!!!
+    int redCase[SIZE];
+    int blueCase[SIZE];
+    bool isJ1Case[SIZE];
+
+    //Case boardCase[SIZE]; //J1 PAIR dans le CODE, mais IMPAIR dans le print !!!!!!
 
     bool isJ1Turn;
     int J2Pieces;
@@ -22,14 +26,13 @@ private:
 public:
     Board();
     Board(bool test);
+    Board(const Board& board);
 
     ~Board();
 
     void printCases();
 
-    Case *getBoardCase();
-
-    bool getIsJ1Turn();
+    bool getIsJ1Turn() const;
 
     void addPieces(int pieces);
 
@@ -53,7 +56,10 @@ public:
 
     int getNbJ2Pieces() const;
 
+    int getNbSeeds() const;
+
     Board copy();
+
 };
 
 #endif

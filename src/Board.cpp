@@ -1,19 +1,11 @@
 #include "Board.h"
 
-bool isEmpty(Case *boardCase) {
-    for (int i = 0; i < SIZE; i++) {
-        if (boardCase[i].getTotal() != 0) {
-            return false;
-        }
-    }
-    return true;
-}
 
 Board::Board() {
     for (int i = 0; i < SIZE; i++) {
-        boardCase[i].setNbRed(2);
-        boardCase[i].setNbBlue(2);
-        boardCase[i].setIsJ1(i % 2 == 0);
+        redCase[i] = 2;
+        blueCase[i] = 2;
+        isJ1Case[i] = i%2 == 0;
     }
     nbJ1Seeds = 32;
     nbJ2Seeds = 32;
@@ -25,11 +17,26 @@ Board::Board() {
 
 Board::Board(bool test) {}
 
+Board::Board(const Board& obj) {
+    for (int i = 0; i < SIZE; i++) {
+        redCase[i] = obj.redCase[i];
+        blueCase[i] = obj.blueCase[i];
+        isJ1Case[i] = obj.isJ1Case[i];
+    }
+    nbJ1Seeds = obj.nbJ1Seeds;
+    nbJ2Seeds = obj.nbJ2Seeds;
+    nbSeeds = obj.nbSeeds;
+    isJ1Turn = obj.isJ1Turn;
+    J2Pieces = obj.J2Pieces;
+    J1Pieces = obj.J1Pieces;
+}
 
 Board Board::copy() {
     Board b = Board(true);
     for (int i = 0; i < SIZE; i++) {
-        b.boardCase[i] = boardCase[i];
+        b.redCase[i] = redCase[i];
+        b.blueCase[i] = blueCase[i];
+        b.isJ1Case[i] = isJ1Case[i];
     }
     b.nbJ1Seeds = nbJ1Seeds;
     b.nbJ2Seeds = nbJ2Seeds;
@@ -45,11 +52,6 @@ Board::~Board() {
 
 }
 
-
-Case *Board::getBoardCase() {
-    return boardCase;
-}
-
 void Board::printCases() {
     printf("\n\n Nouveau tour: \n");
 
@@ -57,7 +59,7 @@ void Board::printCases() {
 
     for (int i = 0; i < SIZE / 2; i++) {
         printf("|%dR %dB| ",
-               boardCase[i].getNbRed(), boardCase[i].getNbBlue());
+               redCase[i], blueCase[i]);
     }
     printf("\n");
     for (int i = 1; i <= SIZE / 2; i++) {
@@ -67,7 +69,7 @@ void Board::printCases() {
 
     for (int i = SIZE - 1; i >= SIZE / 2; i--) {
         printf("|%dR %dB| ",
-               boardCase[i].getNbRed(), boardCase[i].getNbBlue());
+               redCase[i], blueCase[i]);
     }
 
     printf("\n");
@@ -77,7 +79,7 @@ void Board::printCases() {
 }
 
 
-bool Board::getIsJ1Turn() {
+bool Board::getIsJ1Turn() const {
     return isJ1Turn;
 }
 
@@ -90,11 +92,11 @@ bool Board::play(int move, bool isRed) {
         return false;
     }
     if (isRed) {
-        seeds = boardCase[move].getNbRed();
-        boardCase[move].setNbRed(0);
+        seeds = redCase[move];
+        redCase[move] = 0;
     } else {
-        seeds = boardCase[move].getNbBlue();
-        boardCase[move].setNbBlue(0);
+        seeds = blueCase[move];
+        blueCase[move] = 0;
     }
 
     int index = move;
@@ -103,18 +105,18 @@ bool Board::play(int move, bool isRed) {
     while (seeds > 0) {
 
         if (isRed) { // sur toutes les cases
-            if (index == move) {
-                index++;
-            }
             if (start) {
                 start = false;
+                index++;
+            }
+            if (index == move) {
                 index++;
             }
             if (index >= SIZE) {
                 index = 0;
             }
             // joue
-            boardCase[index].addRed();
+            redCase[index]++;
             // incrémente
             index++;
         } else { // uniquement sur les cases de l'opposant
@@ -128,7 +130,7 @@ bool Board::play(int move, bool isRed) {
                 index = 0;
             }
             // joue
-            boardCase[index].addBlue();
+            blueCase[index]++;
             // incrémente
             index += 2;
         }
@@ -142,11 +144,13 @@ bool Board::play(int move, bool isRed) {
     }
 
     eatSeeds(index);
-    for (Case c: boardCase) {
-        if (c.getIsJ1()) {
-            nbJ1Seeds = c.getNbBlue() + c.getNbRed();
+    nbJ1Seeds = 0;
+    nbJ2Seeds = 0;
+    for (int i = 0; i < SIZE; i++) {
+        if (isJ1Case[i]) {
+            nbJ1Seeds += blueCase[i] + redCase[i];
         } else {
-            nbJ2Seeds = c.getNbBlue() + c.getNbRed();
+            nbJ2Seeds += blueCase[i] + redCase[i];
         }
     }
     return true;
@@ -154,11 +158,6 @@ bool Board::play(int move, bool isRed) {
 
 
 bool Board::isEnd() const {
-//    printf("%d\n", nbSeeds);
-//    printf("%d\n", J1Pieces);
-//    printf("%d\n", J2Pieces);
-//    printf("%d\n", nbJ1Seeds);
-//    printf("%d\n", nbJ2Seeds);
     return ((J1Pieces > 32 || J2Pieces > 32)
             || (nbJ1Seeds == 0 || nbJ2Seeds == 0)
             || (J1Pieces == 32 && J2Pieces == 32)
@@ -168,11 +167,11 @@ bool Board::isEnd() const {
 
 bool Board::checkValidMove(int move, bool isRed) {
     if (move >= 0 && move <= SIZE - 1) { // si le coup est bon
-        if ((isRed && boardCase[move].getNbRed() > 0)
-            || (!isRed && boardCase[move].getNbBlue() > 0)) { // si le pot de couleur selectionner n'est pas vide
+        if ((isRed && redCase[move] > 0)
+            || (!isRed && blueCase[move] > 0)) { // si le pot de couleur selectionner n'est pas vide
 
-            if ((isJ1Turn && boardCase[move].getIsJ1())
-                || (!isJ1Turn && !boardCase[move].getIsJ1())) { // si j1 turn et il joue danssa case alors oui, idem j2
+            if ((isJ1Turn && isJ1Case[move])
+                || (!isJ1Turn && !isJ1Case[move])) { // si j1 turn et il joue danssa case alors oui, idem j2
                 return true;
             }
         }
@@ -188,11 +187,11 @@ void Board::eatSeeds(int index) {
         if (index < 0) {
             index = SIZE - 1;
         }
-        int total = boardCase[index].getTotal();
+        int total = redCase[index] + blueCase[index];
         if (total == 3 || total == 2) {
             gain += total;
-            boardCase[index].setNbBlue(0);
-            boardCase[index].setNbRed(0);
+            blueCase[index] = 0;
+            redCase[index] = 0;
         } else {
             cond = false;
         }
@@ -214,15 +213,33 @@ void Board::addPieces(int pieces) {
 }
 
 
-int Board::evaluate(bool AIPlaying) const {
+int Board::evaluate(bool isJ1) const {
     int x = 0;
-    if (AIPlaying && isJ1Turn || !AIPlaying && isJ1Turn) {
+
+    if (isJ1 && nbJ2Seeds > 32) { // si IA J1 et elle
+        x = -64;
+    }
+    else if (!isJ1 && nbJ1Seeds > 32) { // si IA J2
+        x = -64;
+    }
+    else if (isJ1 && nbJ1Seeds <= 0) { // si IA J1 et plus de seeds MAUVAIS
+        x = -64;
+    }
+    else if (!isJ1 && nbJ2Seeds <= 0) { // si IA J2 et plus de seeds MAUVAIS
+        x = -64;
+    }
+    else if (isJ1 && nbJ2Seeds <= 0){ // si IA J1 et J2 plus de seeds BON
+        x = 64;
+    }
+    else if (!isJ1 && nbJ1Seeds <= 0) { // si IA J2 et J1 plus de seeds BON
+        x = 64;
+    }
+    else if (isJ1) {
         x = J1Pieces - J2Pieces;
     }
-    else if (AIPlaying && !isJ1Turn || !AIPlaying && !isJ1Turn) {
-        x= J2Pieces - J1Pieces;
+    else { // pour la compréhension
+        x = J2Pieces - J1Pieces;
     }
-
     return x;
 }
 
@@ -244,4 +261,8 @@ int Board::getNbJ1Pieces() const {
 
 int Board::getNbJ2Pieces() const {
     return J2Pieces;
+}
+
+int Board::getNbSeeds() const {
+    return nbSeeds;
 }
