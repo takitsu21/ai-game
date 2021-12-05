@@ -8,28 +8,58 @@
 
 using namespace std;
 
-int maxFromArray(const int *tabValues, int from, int to) {
-    int max = -100;
-    int idx = 0;
-    for (int i = from; i < to; i++) {
-        if (tabValues[i] > max) {
-            max = tabValues[i];
-            idx = i;
+int maxFromArray(const int *tabValues) {
+    int maxBlue = -100;
+    int idxBlue = 0;
+    int maxRed = -100;
+    int idxRed = 0;
+
+    for (int i = 0; i < SIZE; i++) { // MAX RED
+        if (tabValues[i] > maxRed) {
+            maxRed = tabValues[i];
+            idxRed = i;
         }
     }
-    return idx;
+
+    for (int i = SIZE; i < TAB_VALUES_SIZE; i++) { // MAX BLUE
+        if (tabValues[i] > maxBlue) {
+            maxBlue = tabValues[i];
+            idxBlue = i;
+        }
+    }
+
+    if (maxBlue > maxRed) {
+        return idxBlue;
+    } else {
+        return idxRed;
+    }
 }
 
-int minFromArray(const int *tabValues, int from, int to) {
-    int min = 100;
-    int idx = 0;
-    for (int i = from; i < to; i++) {
-        if (tabValues[i] < min) {
-            min = tabValues[i];
-            idx = i;
+int minFromArray(const int *tabValues) {
+    int maxBlue = 100;
+    int idxBlue = 0;
+    int maxRed = 100;
+    int idxRed = 0;
+
+    for (int i = 0; i < SIZE; i++) { // MIN RED
+        if (tabValues[i] < maxRed) {
+            maxRed = tabValues[i];
+            idxRed = i;
         }
     }
-    return idx;
+
+    for (int i = SIZE; i < TAB_VALUES_SIZE; i++) { // MIN BLUE
+        if (tabValues[i] < maxBlue) {
+            maxBlue = tabValues[i];
+            idxBlue = i;
+        }
+    }
+
+    if (maxBlue > maxRed) {
+        return idxRed;
+    } else {
+        return idxBlue;
+    }
 }
 
 void printTab(int *tab) {
@@ -42,6 +72,7 @@ void printTab(int *tab) {
 int minMax(Board currentBoard, bool AIPlaying, int depth, int depthMax, long long* acc) {
     int tabValues[TAB_VALUES_SIZE];
     *acc = *acc + 1;
+
     if (currentBoard.isEnd()) {
         if (!AIPlaying) {
             return -33;
@@ -236,7 +267,7 @@ void gameLoop(Board board) {
             // JOUEUR IA
             long long acc = 0;
             clock_t time_req = clock();
-            x = minMax(board, true, 0, 2, &acc);
+            x = minMax(board, true, 0, 6, &acc);
             if (x < SIZE) {
                 isRed = true;
                 printf("\n\nJ1 IA minMax : joue la case %dR, nb noeuds parcouru = %lld en %.3f seconds\n\n", x+1, acc,
