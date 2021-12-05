@@ -1,4 +1,4 @@
-# cmake_minimum_required(VERSION <specify CMake version here>)
+cmake_minimum_required(VERSION 3.21)
 project(ai_game)
 
 set(CMAKE_CXX_STANDARD 14)
