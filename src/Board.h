@@ -56,6 +56,8 @@ public:
 
     int getNbJ2Pieces() const;
 
+    int getNbSeeds() const;
+
     Board copy();
 
 };

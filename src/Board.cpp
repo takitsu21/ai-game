@@ -215,13 +215,39 @@ void Board::addPieces(int pieces) {
 
 int Board::evaluate(bool AIPlaying) const {
     int x = 0;
-    if (AIPlaying && isJ1Turn || !AIPlaying && isJ1Turn) {
+    if (isJ1Turn && AIPlaying && nbJ2Seeds > 32) { // si IA J1 et elle
+        x = -64;
+    }
+    else if (!isJ1Turn && AIPlaying && nbJ1Seeds > 32) { // si IA J2
+        x = -64;
+    }
+    else if (isJ1Turn && AIPlaying && nbJ1Seeds <= 0) { // si IA J1 et plus de seeds MAUVAIS
+        x = -64;
+    }
+    else if (!isJ1Turn && AIPlaying && nbJ2Seeds <= 0) { // si IA J2 et plus de seeds MAUVAIS
+        x = -64;
+    }
+    else if (isJ1Turn && AIPlaying && nbJ2Seeds <= 0){ // si IA J1 et J2 plus de seeds BON
+        x = 64;
+    }
+    else if (!isJ1Turn && AIPlaying && nbJ1Seeds <= 0) { // si IA J2 et J1 plus de seeds BON
+        x = 64;
+    }
+    else if (isJ1Turn && AIPlaying) { // si IA J1
         x = J1Pieces - J2Pieces;
     }
-    else if (AIPlaying && !isJ1Turn || !AIPlaying && !isJ1Turn) {
-        x= J2Pieces - J1Pieces;
+    else if (isJ1Turn && !AIPlaying) { // si IA J2
+        x = J2Pieces - J1Pieces;
     }
-
+    else if (!isJ1Turn && AIPlaying) { // si IA J2
+        x = J2Pieces - J1Pieces;
+    }
+    else if (!isJ1Turn && !AIPlaying){ // si IA J1
+        x = J1Pieces - J2Pieces;
+    }
+    else { // pour la compréhension
+        x = 0;
+    }
     return x;
 }
 
@@ -243,4 +269,8 @@ int Board::getNbJ1Pieces() const {
 
 int Board::getNbJ2Pieces() const {
     return J2Pieces;
+}
+
+int Board::getNbSeeds() const {
+    return nbSeeds;
 }
