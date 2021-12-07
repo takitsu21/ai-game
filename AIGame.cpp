@@ -1,9 +1,11 @@
-//#pragma GCC optimize("Ofast")
+//#pragma GCC optimize("0fast")
 //#pragma GCC target("avx,avx2,fma")
+
 #include <iostream>
 #include "src/Board.h"
 #include <ctime>
 #include <string>
+
 
 #define TAB_VALUES_SIZE 32
 
@@ -101,38 +103,56 @@ void winner(const Board &board) {
     }
 }
 
-int minMax(Board &currentBoard, bool AIPlaying, int depth, int depthMax, long long *acc, bool isJ1) {
+int
+negamax(Board &currentBoard, bool AIPlaying, int depth, int depthMax, int alpha, int beta, long long *acc, bool isJ1) {
     int tabValues[TAB_VALUES_SIZE];
     *acc = *acc + 1;
-
+//    int score = currentBoard.evaluate(isJ1);
+//    if (score == 64) {
+//        return score;
+//    }
     if (currentBoard.isEnd() || depth == depthMax) {
-        return currentBoard.evaluate(isJ1);
-    }
+        int score = currentBoard.evaluate(isJ1);
 
+        if (AIPlaying) {
+            return 1 * (score - depth);
+        } else {
+            return -1 * (score + depth);
+        }
+    }
+    int bestMove = -100;
     for (int i = 0; i < SIZE; i++) {
-        for (int color = 0; color < 2; color++) {
+
+        for (int colorJ = 0; colorJ < 2; colorJ++) {
             Board nextBoard = currentBoard.copy();
-            bool color_bool = color == 0;
+            bool color_bool = colorJ == 0;
 
             if (nextBoard.checkValidMove(i, color_bool)) {
                 if (nextBoard.play(i, color_bool)) {
                     nextBoard.nextPlayer();
                 }
-                int move = minMax(nextBoard, !AIPlaying, depth + 1, depthMax, acc, isJ1);
-//                if (move == 64) {
-//                    move -= depth;
-//                }
-                if (color_bool) { // if red tabvalues < 16
-                    tabValues[i] = move;
-                } else { // if blue tabvalues >= 16
-                    tabValues[i + SIZE] = move;
-                }
 
+                bestMove = max(bestMove, -negamax(nextBoard, !AIPlaying, depth + 1, depthMax,
+                                                  -beta, -alpha, acc, isJ1));
+                alpha = max(alpha, bestMove);
+
+                if (alpha >= beta) { // peut etre renvoyé le best move
+                    if (color_bool) {
+                        return i;
+                    } else {
+                        return i + SIZE;
+                    }
+                }
+                if (color_bool) { // if red
+                    tabValues[i] = bestMove;
+                } else { // if blue
+                    tabValues[i + SIZE] = bestMove;
+                }
             } else {
                 if (AIPlaying) {
-                    if (color_bool) { // if red tabvalues < 16
+                    if (color_bool) { // if red
                         tabValues[i] = -100;
-                    } else { // if blue tabvalues >= 16
+                    } else { // if blue
                         tabValues[i + SIZE] = -100;
                     }
                 } else {
@@ -152,65 +172,8 @@ int minMax(Board &currentBoard, bool AIPlaying, int depth, int depthMax, long lo
     } else {
         res = minFromArray(tabValues);
     }
-//    printf("\n depth %d\n", depth);
-//    printTab(tabValues, TAB_VALUES_SIZE);
     return res;
 }
-
-
-//int minMaxAlphaBeta(Board currentBoard, bool AIPlaying, int depth, int depthMax, long long* acc) {
-//    int *currentCase;
-//    int tabValues[SIZE];
-//    *acc = *acc + 1;
-//    if (currentBoard.isEnd()) {
-//        if (!AIPlaying) {
-//            return -25;
-//        } else {
-//            return 25;
-//        }
-//    }
-//    if (depth == depthMax) {
-//        return currentBoard.evaluate();
-//    }
-//    if (AIPlaying) {
-//        currentCase = currentBoard.getCaseJ1();
-//    } else {
-//        currentCase = currentBoard.getCaseJ2();
-//    }
-//
-//
-//    for (int i = 0; i < SIZE; i++) {
-//        Board nextBoard = currentBoard.copy();
-//        if (Board::checkValidMove(currentCase, i)) {
-//            if (nextBoard.play(i)) {
-//                nextBoard.setNextPlayer();
-//            }
-////            printf("\n\n\n---------------------------\n\n\n");
-////            printf("depth = %d, move = %d\n", depth, i);
-////            nextBoard.printCases();
-////            printf("\n\n\n---------------------------\n\n\n");
-//            tabValues[i] = minMax(nextBoard, !AIPlaying, depth + 1, depthMax, acc);
-//        } else {
-//            if (AIPlaying) {
-//                tabValues[i] = -100;
-//            } else {
-//                tabValues[i] = 100;
-//            }
-//        }
-//    }
-//
-//    int res;
-//    if (AIPlaying) {
-////        printf("\nTABVALUE MAX: ");
-////        printTab(tabValues);
-//        res = maxFromArray(tabValues);
-//    } else {
-////        printf("\nTABVALUE MIN: ");
-////        printTab(tabValues);
-//        res = minFromArray(tabValues);
-//    }
-//    return res;
-//}
 
 
 string inputPlayer(bool isJ1) {
@@ -270,15 +233,17 @@ void gameLoop(Board board) {
             // JOUEUR IA
             long long acc = 0;
             clock_t time_req = clock();
-            x = minMax(board, true, 0, 2, &acc, true);
+            x = negamax(board, true, 0, 1, -100, 100, &acc, true);
             if (x < SIZE) {
                 isRed = true;
-                printf("\n\nJ1 IA minMax : joue la case %dR, nb noeuds parcouru = %lld en %.3f seconds\n\n", x + 1, acc,
+                printf("\n\nJ1 IA negamax : joue la case %dR, nb noeuds parcouru = %lld en %.3f seconds\n\n", x + 1,
+                       acc,
                        (float) (clock() - time_req) / CLOCKS_PER_SEC);
             } else {
                 isRed = false;
                 x -= SIZE;
-                printf("\n\nJ1 IA minMax : joue la case %dB, nb noeuds parcouru = %lld en %.3f seconds\n\n", x + 1, acc,
+                printf("\n\nJ1 IA negamax : joue la case %dB, nb noeuds parcouru = %lld en %.3f seconds\n\n", x + 1,
+                       acc,
                        (float) (clock() - time_req) / CLOCKS_PER_SEC);
             }
 
@@ -289,15 +254,17 @@ void gameLoop(Board board) {
 //            isRed = res.second;
             long long acc = 0;
             clock_t time_req = clock();
-            x = minMax(board, true, 0, 6, &acc, false);
+            x = negamax(board, true, 0, 7, -100, 100, &acc, false);
             if (x < SIZE) {
                 isRed = true;
-                printf("\n\nJ2 IA minMax : joue la case %dR, nb noeuds parcouru = %lld en %.3f seconds\n\n", x + 1, acc,
+                printf("\n\nJ2 IA negamax : joue la case %dR, nb noeuds parcouru = %lld en %.3f seconds\n\n", x + 1,
+                       acc,
                        (float) (clock() - time_req) / CLOCKS_PER_SEC);
             } else {
                 isRed = false;
                 x -= SIZE;
-                printf("\n\nJ2 IA minMax : joue la case %dB, nb noeuds parcouru = %lld en %.3f seconds\n\n", x + 1, acc,
+                printf("\n\nJ2 IA negamax : joue la case %dB, nb noeuds parcouru = %lld en %.3f seconds\n\n", x + 1,
+                       acc,
                        (float) (clock() - time_req) / CLOCKS_PER_SEC);
             }
         }
@@ -315,90 +282,6 @@ void gameLoop(Board board) {
 
     winner(board);
 }
-
-
-
-//int alphaBetaValue(Board currentBoard, bool AIPlaying, int alpha, int beta, bool isMax, int depthMax) {
-//    int* currentCase;
-//    if (currentBoard.isEnd()) {
-//        if (!AIPlaying) {
-//            return -25;
-//        } else {
-//            return 25;
-//        }
-//    }
-//    // draw position on renvoie 0
-//    if (depthMax == 0) {
-//        return currentBoard.evaluate();
-//    }
-//    if (AIPlaying) {
-//        currentCase = currentBoard.getCaseJ1();
-//    } else {
-//        currentCase = currentBoard.getCaseJ2();
-//    }
-//    if (isMax) {
-//        for (int i = 0; i < SIZE;i++) {
-//            Board nextBoard = currentBoard.copy();
-//            if (Board::checkValidMove(currentCase, i)) {
-//                if (nextBoard.play(i)) {
-//                    nextBoard.setNextPlayer();
-//                    alpha = max(alpha,
-//                                alphaBetaValue(nextBoard,
-//                                               !AIPlaying, alpha, beta, !isMax,depthMax - 1));
-//                    if (alpha >= beta) {
-//                        return alpha;
-//                    }
-//                }
-//            }
-//        }
-//        return alpha;
-//    } else {
-//        for (int i = 0; i < SIZE; i++) {
-//            Board nextBoard = currentBoard.copy();
-//            if (Board::checkValidMove(currentCase, i)) {
-//                if (nextBoard.play(i)) {
-//                    nextBoard.setNextPlayer();
-//                    beta = min(beta,
-//                               alphaBetaValue(
-//                                       nextBoard, !AIPlaying, alpha, beta, !isMax, depthMax - 1));
-//                    if (beta <= alpha) {
-//                        return beta;
-//                    }
-//                }
-//            }
-//        }
-//        return beta;
-//    }
-//
-//}
-
-//int decisionAlphaBeta(Board currentBoard, bool AIPlaying, int depthMax) {
-//    int* currentCase;
-//    int alpha = -25;
-//    if (AIPlaying) {
-//        currentCase = currentBoard.getCaseJ1();
-//    } else {
-//        currentCase = currentBoard.getCaseJ2();
-//    }
-//    int action;
-//    for (int i = 0; i < SIZE; i++) {
-//        Board nextBoard = currentBoard.copy();
-//        if (Board::checkValidMove(currentCase, i)) {
-//            if (nextBoard.play(i)) {
-//                nextBoard.setNextPlayer();
-//                int val = alphaBetaValue(nextBoard, AIPlaying, alpha, 25, false, 10);
-//                if (val > alpha) {
-//                    action = i;
-//                    alpha = val;
-//                }
-//            }
-//        }
-//        return action;
-//    }
-//    return 0;
-//}
-
-
 
 int main() {
     Board board = Board();

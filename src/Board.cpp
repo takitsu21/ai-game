@@ -214,34 +214,43 @@ void Board::addPieces(int pieces) {
 
 
 int Board::evaluate(bool isJ1) const {
-    if (J1Pieces == J2Pieces) {
-        return 0;
-    }
+
     int x;
     if (isJ1) {
-        if (J2Pieces > 32) { // si IA J1 et elle
-            x = 64;
-        } else if (J1Pieces > 32) {
+        if (nbJ1Seeds <= 0) {
             x = -64;
-        } else if (nbJ1Seeds <= 0) { // si IA J2
-            x = 64;
         } else if (nbJ2Seeds <= 0) {
+            x = 64;
+        } else if (J2Pieces > 32) {
             x = -64;
+        } else if (J1Pieces > 32) {
+            x = 64;
+        } else if (J1Pieces < J2Pieces && nbSeeds < 8) {
+            x = -64;
+        } else if (J1Pieces > J2Pieces && nbSeeds < 8) {
+            x = 64;
         } else {
             x = J1Pieces - J2Pieces;
         }
     } else {
-        if (J2Pieces > 32) { // si IA J1 et elle
+        if (nbJ2Seeds <= 0) {
             x = -64;
-        } else if (J1Pieces > 32) {
+        } else if (nbJ1Seeds <= 0) {
             x = 64;
-        } else if (nbJ1Seeds <= 0) { // si IA J2
+        } else if (J1Pieces > 32) {
             x = -64;
-        } else if (nbJ2Seeds <= 0) {
+        } else if (J2Pieces > 32) {
+            x = 64;
+        } else if (J2Pieces < J1Pieces && nbSeeds < 8) {
+            x = -64;
+        } else if (J2Pieces > J1Pieces && nbSeeds < 8) {
             x = 64;
         } else {
             x = J2Pieces - J1Pieces;
         }
+    }
+    if (J1Pieces == J2Pieces) {
+        return 0;
     }
     return x;
 }
