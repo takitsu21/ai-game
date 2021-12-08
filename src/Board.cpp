@@ -5,7 +5,7 @@ Board::Board() {
     for (int i = 0; i < SIZE; i++) {
         redCase[i] = 2;
         blueCase[i] = 2;
-        isJ1Case[i] = i%2 == 0;
+        isJ1Case[i] = i % 2 == 0;
     }
     nbJ1Seeds = 32;
     nbJ2Seeds = 32;
@@ -17,7 +17,7 @@ Board::Board() {
 
 Board::Board(bool test) {}
 
-Board::Board(const Board& obj) {
+Board::Board(const Board &obj) {
     for (int i = 0; i < SIZE; i++) {
         redCase[i] = obj.redCase[i];
         blueCase[i] = obj.blueCase[i];
@@ -53,9 +53,7 @@ Board::~Board() {
 }
 
 void Board::printCases() {
-    printf("\n\n Nouveau tour: \n");
-
-    printf("pieces J1 : %d, pieces J2 : %d\n\n", J1Pieces, J2Pieces);
+    printf("score J1 : %d\nscore J2 : %d\n\n", J1Pieces, J2Pieces);
 
     for (int i = 0; i < SIZE / 2; i++) {
         printf("|%dR %dB| ",
@@ -76,6 +74,7 @@ void Board::printCases() {
     for (int i = SIZE; i > SIZE / 2; i--) {
         printf("   %d   ", i);
     }
+    std::cout << "\n\n";
 }
 
 
@@ -156,12 +155,12 @@ bool Board::play(int move, bool isRed) {
     return true;
 }
 
-
-bool Board::isEnd() const {
+bool Board::isEnd(bool AIPlaying, bool isJ1) const {
     return ((J1Pieces > 32 || J2Pieces > 32)
-            || (nbJ1Seeds == 0 || nbJ2Seeds == 0)
             || (J1Pieces == 32 && J2Pieces == 32)
-            || (nbSeeds < 8));
+            || (nbSeeds < 8)
+            || (AIPlaying && isJ1 && nbJ1Seeds == 0)
+            || (AIPlaying && !isJ1 && nbJ2Seeds == 0));
 }
 
 
@@ -213,32 +212,47 @@ void Board::addPieces(int pieces) {
 }
 
 
-int Board::evaluate(bool isJ1) const {
-    int x = 0;
+int Board::evaluate(bool isJ1, bool AIPlaying) const {
 
-    if (isJ1 && nbJ2Seeds > 32) { // si IA J1 et elle
-        x = -64;
+    int x;
+
+    if (isJ1) {
+        if (!AIPlaying && nbJ2Seeds <= 0) { // Si on est joueur 1 et qu'on évalue un coup de l'IA
+            x = 64;
+        }
+        else if (AIPlaying && nbJ1Seeds <= 0) { // on évalue le coup de l'adversaire (J2)
+            x = -64;
+        }
+        else if (J2Pieces > 32) {
+            x = -64;
+        } else if (J1Pieces > 32) {
+            x = 64;
+        } else if (nbSeeds < 8 && J1Pieces < J2Pieces ) {
+            x = -64;
+        } else if ( nbSeeds < 8 && J1Pieces > J2Pieces) {
+            x = 64;
+        } else {
+            x = J1Pieces - J2Pieces;
+        }
     }
-    else if (!isJ1 && nbJ1Seeds > 32) { // si IA J2
-        x = -64;
-    }
-    else if (isJ1 && nbJ1Seeds <= 0) { // si IA J1 et plus de seeds MAUVAIS
-        x = -64;
-    }
-    else if (!isJ1 && nbJ2Seeds <= 0) { // si IA J2 et plus de seeds MAUVAIS
-        x = -64;
-    }
-    else if (isJ1 && nbJ2Seeds <= 0){ // si IA J1 et J2 plus de seeds BON
-        x = 64;
-    }
-    else if (!isJ1 && nbJ1Seeds <= 0) { // si IA J2 et J1 plus de seeds BON
-        x = 64;
-    }
-    else if (isJ1) {
-        x = J1Pieces - J2Pieces;
-    }
-    else { // pour la compréhension
-        x = J2Pieces - J1Pieces;
+    else {
+        if (!AIPlaying && nbJ1Seeds <= 0) { // Si on est joueur 2 et qu'on évalue notre propre coup
+            x = 64;
+        }
+        else if (AIPlaying && nbJ2Seeds <= 0) { // on évalue le coup de l'adversaire (J2)
+            x = -64;
+        }
+        else if (J1Pieces > 32) {
+            x = -64;
+        } else if (J2Pieces > 32) {
+            x = 64;
+        } else if (nbSeeds < 8 && J2Pieces < J1Pieces) {
+            x = -64;
+        } else if (nbSeeds < 8 && J2Pieces > J1Pieces) {
+            x = 64;
+        } else {
+            x = J2Pieces - J1Pieces;
+        }
     }
     return x;
 }
