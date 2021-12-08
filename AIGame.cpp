@@ -3,67 +3,10 @@
 
 #include <iostream>
 #include "src/Board.h"
+#include "src/IA.h"
 #include <ctime>
 #include <string>
 
-
-#define TAB_VALUES_SIZE 32
-
-using namespace std;
-
-int maxFromArray(const int *tabValues) {
-    int maxBlue = -100;
-    int idxBlue = 0;
-    int maxRed = -100;
-    int idxRed = 0;
-
-    for (int i = 0; i < SIZE; i++) { // MAX RED
-        if (tabValues[i] > maxRed) {
-            maxRed = tabValues[i];
-            idxRed = i;
-        }
-    }
-
-    for (int i = SIZE; i < TAB_VALUES_SIZE; i++) { // MAX BLUE
-        if (tabValues[i] > maxBlue) {
-            maxBlue = tabValues[i];
-            idxBlue = i;
-        }
-    }
-
-    if (maxBlue > maxRed) {
-        return idxBlue;
-    } else {
-        return idxRed;
-    }
-}
-
-int minFromArray(const int *tabValues) {
-    int maxBlue = 100;
-    int idxBlue = 0;
-    int maxRed = 100;
-    int idxRed = 0;
-
-    for (int i = 0; i < SIZE; i++) { // MIN RED
-        if (tabValues[i] < maxRed) {
-            maxRed = tabValues[i];
-            idxRed = i;
-        }
-    }
-
-    for (int i = SIZE; i < TAB_VALUES_SIZE; i++) { // MIN BLUE
-        if (tabValues[i] < maxBlue) {
-            maxBlue = tabValues[i];
-            idxBlue = i;
-        }
-    }
-
-    if (maxBlue > maxRed) {
-        return idxRed;
-    } else {
-        return idxBlue;
-    }
-}
 
 void printTab(int *tab) {
     for (int i = 0; i < TAB_VALUES_SIZE; i++) {
@@ -103,77 +46,6 @@ void winner(const Board &board) {
     }
 }
 
-int
-negamax(Board &currentBoard, bool AIPlaying, int depth, int depthMax, int alpha, int beta, long long *acc, bool isJ1) {
-    int tabValues[TAB_VALUES_SIZE];
-    *acc = *acc + 1;
-//    int score = currentBoard.evaluate(isJ1);
-//    if (score == 64) {
-//        return score;
-//    }
-    if (currentBoard.isEnd() || depth == depthMax) {
-        int score = currentBoard.evaluate(isJ1);
-
-        if (AIPlaying) {
-            return 1 * (score - depth);
-        } else {
-            return -1 * (score + depth);
-        }
-    }
-    int bestMove = -100;
-    for (int i = 0; i < SIZE; i++) {
-
-        for (int colorJ = 0; colorJ < 2; colorJ++) {
-            Board nextBoard = currentBoard.copy();
-            bool color_bool = colorJ == 0;
-
-            if (nextBoard.checkValidMove(i, color_bool)) {
-                if (nextBoard.play(i, color_bool)) {
-                    nextBoard.nextPlayer();
-                }
-
-                bestMove = max(bestMove, -negamax(nextBoard, !AIPlaying, depth + 1, depthMax,
-                                                  -beta, -alpha, acc, isJ1));
-                alpha = max(alpha, bestMove);
-
-                if (alpha >= beta) { // peut etre renvoyé le best move
-                    if (color_bool) {
-                        return i;
-                    } else {
-                        return i + SIZE;
-                    }
-                }
-                if (color_bool) { // if red
-                    tabValues[i] = bestMove;
-                } else { // if blue
-                    tabValues[i + SIZE] = bestMove;
-                }
-            } else {
-                if (AIPlaying) {
-                    if (color_bool) { // if red
-                        tabValues[i] = -100;
-                    } else { // if blue
-                        tabValues[i + SIZE] = -100;
-                    }
-                } else {
-                    if (color_bool) { // if red tabvalues 16
-                        tabValues[i] = 100;
-                    } else { // if blue tabvalues >= 16
-                        tabValues[i + SIZE] = 100;
-                    }
-                }
-            }
-        }
-    }
-
-    int res;
-    if (AIPlaying) {
-        res = maxFromArray(tabValues);
-    } else {
-        res = minFromArray(tabValues);
-    }
-    return res;
-}
 
 
 string inputPlayer(bool isJ1) {
@@ -212,6 +84,41 @@ pair<int, bool> parse(string s) {
     return make_pair(x - 1, isRed); // tab index from 0 to 15
 }
 
+pair<int, bool> getPlayerMove(bool isJ1) {
+    string s = inputPlayer(isJ1);
+    return parse(s);
+}
+
+pair<int, bool> getIAMove(Board board, bool isJ1, int depthMax) {
+    int x;
+    bool isRed;
+    long long acc = 0;
+    clock_t time_req = clock();
+
+    x = negamax(board, true, 0, depthMax, -100, 100, &acc, isJ1);
+
+    if (isJ1) {
+        printf("\n\nL'IA J1 ");
+    }
+    else {
+        printf("\n\nL'IA J2 ");
+    }
+
+    if (x < SIZE) {
+        isRed = true;
+        printf("negamax : joue la case %dR, nb noeuds parcouru = %lld en %.3f seconds\n\n", x + 1,
+               acc,
+               (float) (clock() - time_req) / CLOCKS_PER_SEC);
+    } else {
+        isRed = false;
+        x -= SIZE;
+        printf("negamax : joue la case %dB, nb noeuds parcouru = %lld en %.3f seconds\n\n", x + 1,
+               acc,
+               (float) (clock() - time_req) / CLOCKS_PER_SEC);
+    }
+
+    return make_pair(x, isRed);
+}
 
 void gameLoop(Board board) {
     int nbTour = 0;
@@ -224,50 +131,17 @@ void gameLoop(Board board) {
         bool validMove;
 
         if (board.getIsJ1Turn()) {
-            // JOUEUR HUMAIN
-//            string s = inputPlayer(board.getIsJ1Turn());
-//            pair<int, bool> res = parse(s);
-//            x = res.first;
-//            isRed = res.second;
 
-            // JOUEUR IA
-            long long acc = 0;
-            clock_t time_req = clock();
-            x = negamax(board, true, 0, 1, -100, 100, &acc, true);
-            if (x < SIZE) {
-                isRed = true;
-                printf("\n\nJ1 IA negamax : joue la case %dR, nb noeuds parcouru = %lld en %.3f seconds\n\n", x + 1,
-                       acc,
-                       (float) (clock() - time_req) / CLOCKS_PER_SEC);
-            } else {
-                isRed = false;
-                x -= SIZE;
-                printf("\n\nJ1 IA negamax : joue la case %dB, nb noeuds parcouru = %lld en %.3f seconds\n\n", x + 1,
-                       acc,
-                       (float) (clock() - time_req) / CLOCKS_PER_SEC);
-            }
+            pair<int, bool> res = getIAMove(board, true, 5);
+            x = res.first;
+            isRed = res.second;
 
         } else {
-//            string s = inputPlayer(board.getIsJ1Turn());
-//            pair<int, bool> res = parse(s);
-//            x = res.first;
-//            isRed = res.second;
-            long long acc = 0;
-            clock_t time_req = clock();
-            x = negamax(board, true, 0, 7, -100, 100, &acc, false);
-            if (x < SIZE) {
-                isRed = true;
-                printf("\n\nJ2 IA negamax : joue la case %dR, nb noeuds parcouru = %lld en %.3f seconds\n\n", x + 1,
-                       acc,
-                       (float) (clock() - time_req) / CLOCKS_PER_SEC);
-            } else {
-                isRed = false;
-                x -= SIZE;
-                printf("\n\nJ2 IA negamax : joue la case %dB, nb noeuds parcouru = %lld en %.3f seconds\n\n", x + 1,
-                       acc,
-                       (float) (clock() - time_req) / CLOCKS_PER_SEC);
-            }
+            pair<int, bool> res = getIAMove(board, false, 8);
+            x = res.first;
+            isRed = res.second;
         }
+
         if (x == -1) {
             cout << "Coup invalide !" << endl;
             continue;
