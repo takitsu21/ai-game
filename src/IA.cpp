@@ -121,7 +121,6 @@ int minFromArrayPtr(array<int*, TAB_VALUES_SIZE> tabValues) {
 }
 
 void negMaxThread(Board currentBoard, bool AIPlaying, int depth, int depthMax, long long *acc, bool isJ1, int *res) {
-    cout << "thread lancé !" << endl;
     int score = negamax(currentBoard, !AIPlaying, depth + 1, depthMax, acc, isJ1, false);
     *res = score;
 }
@@ -134,7 +133,7 @@ int negamaxStart(Board &currentBoard, bool AIPlaying, int depth, int depthMax, l
         return score;
     }
 
-    array<thread, SIZE> threads;
+    array<thread, TAB_VALUES_SIZE> threads;
     array<int*, TAB_VALUES_SIZE> tabValues{};
     for (int i = 0; i < TAB_VALUES_SIZE; i++) {
         tabValues[i] = (int *) malloc(sizeof(int));
@@ -163,7 +162,7 @@ int negamaxStart(Board &currentBoard, bool AIPlaying, int depth, int depthMax, l
                     });
                 }
                 else {
-                    threads[i] = thread( [=] {
+                    threads[i+SIZE] = thread( [=] {
                         negMaxThread(nextBoard, !AIPlaying, depth + 1, depthMax, acc, isJ1,  tabValues[i+SIZE]);
                     });
                 }
@@ -171,11 +170,11 @@ int negamaxStart(Board &currentBoard, bool AIPlaying, int depth, int depthMax, l
         }
     }
 
-//    for (int i = 0; i < SIZE; i++) {
-//        if (threads[i].joinable()) {
-//            threads[i].join();
-//        }
-//    }
+    for (int i = 0; i < TAB_VALUES_SIZE; i++) {
+        if (threads[i].joinable()) {
+            threads[i].join();
+        }
+    }
 
     int res;
     if (AIPlaying) {
