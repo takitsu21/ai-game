@@ -1,6 +1,7 @@
 //
 // Created by antoi on 08/12/2021.
 //
+#include <thread>
 
 #include "IA.h"
 
@@ -66,7 +67,93 @@ int minFromArray(const int *tabValues) {
     }
 }
 
-int negamax(Board &currentBoard, bool AIPlaying, int depth, int depthMax, long long *acc, bool isJ1, bool firstCall) {
+//void negMaxThread(Board currentBoard, bool AIPlaying, int depth, int depthMax, long long *acc, bool isJ1, bool firstCall, int *res, bool isRed) {
+//    int score = negamax(currentBoard, !AIPlaying, depth + 1, depthMax, acc, isJ1, false);
+//    if (isRed) {
+//        *res = score;
+//    }
+//    else {
+//        *res = score;
+//    }
+//}
+//
+//int negamaxStart(Board &currentBoard, bool AIPlaying, int depth, int depthMax, long long *acc, bool isJ1, bool firstCall) {
+//    *acc = *acc + 1;
+//
+//    if (currentBoard.isEnd(AIPlaying, isJ1) || depth == depthMax) {
+//        int score = currentBoard.evaluate(isJ1, AIPlaying);
+//        return score;
+//    }
+//
+//    int tabValues[TAB_VALUES_SIZE] = {
+//            -100, -100, -100, -100,
+//            -100, -100, -100, -100,
+//            -100, -100, -100, -100,
+//            -100, -100, -100, -100,
+//            -100, -100, -100, -100,
+//            -100, -100, -100, -100,
+//            -100, -100, -100, -100,
+//            -100, -100, -100, -100
+//    };
+//    if (!AIPlaying) {
+//        for (int & tabValue : tabValues) {
+//            tabValue = 100;
+//        }
+//    }
+//
+//    int bestMove;
+//
+//    array<int*, SIZE> resPtr{};
+//    array<thread, SIZE> threads;
+//    for (int i = 0; i < SIZE; i++) {
+//        resPtr[i] = (int *) malloc(sizeof(int));
+//    }
+//
+//    for (int i = 0; i < SIZE; i++) {
+//        for (int colorJ = 0; colorJ < 2; colorJ++) {
+//
+//            Board nextBoard = currentBoard.copy();
+//            bool isRed = colorJ == 0;
+//
+//            if (nextBoard.checkValidMove(i, isRed)) {
+//                if (nextBoard.play(i, isRed)) {
+//                    nextBoard.nextPlayer();
+//                }
+//
+//                threads[i] = thread( [=] {
+//                    negMaxThread(nextBoard, !AIPlaying, depth + 1, depthMax, acc, isJ1, false, resPtr[i], isRed);
+//                });
+//
+//            }
+//        }
+//    }
+//
+//    for (int i = 0; i < SIZE; i++) {
+//        threads[i].join();
+//    }
+//
+//
+//    int res;
+//    if (firstCall) {
+//        if (AIPlaying) {
+//            res = maxFromArray(tabValues);
+//        } else {
+//            res = minFromArray(tabValues);
+//        }
+//        printTab(tabValues);
+//    } else {
+//        int idx;
+//        if (AIPlaying) {
+//            idx = maxFromArray(tabValues);
+//        } else {
+//            idx = minFromArray(tabValues);
+//        }
+//        res = tabValues[idx];
+//    }
+//    return res;
+//}
+
+int negamaxStart(Board &currentBoard, bool AIPlaying, int depth, int depthMax, long long *acc, bool isJ1, bool firstCall) {
     int tabValues[TAB_VALUES_SIZE];
     *acc = *acc + 1;
 
@@ -76,6 +163,7 @@ int negamax(Board &currentBoard, bool AIPlaying, int depth, int depthMax, long l
     }
 
     int bestMove;
+
     for (int i = 0; i < SIZE; i++) {
         for (int colorJ = 0; colorJ < 2; colorJ++) {
 
@@ -87,15 +175,15 @@ int negamax(Board &currentBoard, bool AIPlaying, int depth, int depthMax, long l
                     nextBoard.nextPlayer();
                 }
 
-                bestMove = negamax(nextBoard, !AIPlaying, depth + 1, depthMax, acc, isJ1, false);
+
+                bestMove = negamaxStart(nextBoard, !AIPlaying, depth + 1, depthMax, acc, isJ1, false);
 
                 if (isRed) { // if red
                     tabValues[i] = bestMove;
                 } else { // if blue
                     tabValues[i + SIZE] = bestMove;
                 }
-            }
-            else {
+            } else {
                 if (AIPlaying) {
                     if (isRed) { // if red
                         tabValues[i] = -100;
@@ -121,8 +209,7 @@ int negamax(Board &currentBoard, bool AIPlaying, int depth, int depthMax, long l
             res = minFromArray(tabValues);
         }
         printTab(tabValues);
-    }
-    else {
+    } else {
         int idx;
         if (AIPlaying) {
             idx = maxFromArray(tabValues);
@@ -149,8 +236,7 @@ int evaluateDepth(Board board, bool isJ1, int depthMax) {
     }
     if (nbMoves <= 2) {
         depth = depthMax + 3;
-    }
-    else if (nbMoves <= 7) {
+    } else if (nbMoves <= 7) {
         depth = depthMax + 2;
     } else if (nbMoves <= 8) {
         depth = depthMax + 1;

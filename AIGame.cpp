@@ -6,18 +6,19 @@
 #include "src/IA.h"
 #include <ctime>
 #include <string>
-
-
-
+#include <thread>
+#include <array>
 
 
 void winner(const Board &board) {
+
     // famine
     printf("j1 seeds %d\n", board.getNbJ1Seeds());
     printf("j2 seeds %d\n", board.getNbJ2Seeds());
     printf("J1 PIECES %d\n", board.getNbJ1Pieces());
     printf("J2 PIECES %d\n", board.getNbJ2Pieces());
     printf("SEEDS %d\n", board.getNbSeeds());
+
     if (board.getNbJ1Pieces() > 32) {
         printf("J1 WIN\n");
     } else if (board.getNbJ2Pieces() > 32) {
@@ -91,26 +92,25 @@ pair<int, bool> getIAMove(Board board, bool isJ1, int depthMax, int *winNbMove) 
 
     if (isJ1) {
         cout << "IA J1 Turn:" << endl;
-    }
-    else {
+    } else {
         cout << "IA J2 Turn:" << endl;
     }
 
-    depthMax = evaluateDepth(board, isJ1, depthMax);
+    //depthMax = evaluateDepth(board, isJ1, depthMax);
     cout << "Depth: " << depthMax << endl;
 
-    x = negamax(board, true, 0, depthMax, &acc, isJ1, true);
+    x = negamaxStart(board, true, 0, depthMax, &acc, isJ1, true);
 
     cout << "Number of nodes: " << acc << endl;
     cout << "Time to respond: " << (float) (clock() - time_req) / CLOCKS_PER_SEC << endl;
 
     if (x < SIZE) {
         isRed = true;
-        cout << "Move: " << x+1 << "R" << endl;
+        cout << "Move: " << x + 1 << "R" << endl;
     } else {
         isRed = false;
         x -= SIZE;
-        cout << "Move: " << x+1 << "B" << endl;
+        cout << "Move: " << x + 1 << "B" << endl;
     }
 
     return make_pair(x, isRed);
@@ -137,8 +137,7 @@ void gameLoop(Board board) {
             pair<int, bool> res = getIAMove(board, true, 4, &winNbMoveJ1);
             x = res.first;
             isRed = res.second;
-        }
-        else {
+        } else {
             pair<int, bool> res = getIAMove(board, false, 7, &winNbMoveJ2);
             x = res.first;
             isRed = res.second;
@@ -161,8 +160,31 @@ void gameLoop(Board board) {
     winner(board);
 }
 
+
+void ThreadFunction( int i, int val[])
+{
+    val[i] = i;
+}
+
+void test() {
+    array<thread, 2> threads;
+    int *values;
+
+    for( int i = 0; i < 2; ++i )
+    {
+        threads[i] = thread( [=] { ThreadFunction(i, static_cast<int *>(values)); } );
+    }
+    threads[0].join();
+    threads[1].join();
+
+    cout << values[0] << endl;
+    cout << values[1] << endl;
+
+}
+
 int main() {
-    Board board = Board();
-    gameLoop(board);
+//    Board board = Board();
+//    gameLoop(board);
+    test();
     return EXIT_SUCCESS;
 }
