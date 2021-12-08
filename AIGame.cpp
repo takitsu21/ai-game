@@ -99,7 +99,7 @@ pair<int, bool> getIAMove(Board board, bool isJ1, int depthMax, int *winNbMove) 
     //depthMax = evaluateDepth(board, isJ1, depthMax);
     cout << "Depth: " << depthMax << endl;
 
-    x = negamaxStart(board, true, 0, depthMax, &acc, isJ1, true);
+    x = negamaxStart(board, true, 0, depthMax, &acc, isJ1);
 
     cout << "Number of nodes: " << acc << endl;
     cout << "Time to respond: " << (float) (clock() - time_req) / CLOCKS_PER_SEC << endl;
@@ -161,30 +161,38 @@ void gameLoop(Board board) {
 }
 
 
-void ThreadFunction( int i, int val[])
+void ThreadFunction( int x, int *res)
 {
-    val[i] = i;
+    *res = x;
 }
 
 void test() {
     array<thread, 2> threads;
-    int *values;
+    array<int*, 2> resPtr{};
+    for (int i = 0; i < 2; i++) {
+        resPtr[i] = (int*) malloc(sizeof (int));
+    }
+
 
     for( int i = 0; i < 2; ++i )
     {
-        threads[i] = thread( [=] { ThreadFunction(i, static_cast<int *>(values)); } );
+        threads[i] = thread( [=] { ThreadFunction(i, resPtr[i]); } );
     }
-    threads[0].join();
-    threads[1].join();
 
-    cout << values[0] << endl;
-    cout << values[1] << endl;
+    for( int i = 0; i < 2; ++i ) {
+        threads[i].join();
+    }
+
+    cout << *resPtr[0] << endl;
+    cout << *resPtr[1] << endl;
+    delete resPtr[0];
+    delete resPtr[1];
 
 }
 
 int main() {
-//    Board board = Board();
-//    gameLoop(board);
-    test();
+    Board board = Board();
+    gameLoop(board);
+//    test();
     return EXIT_SUCCESS;
 }
