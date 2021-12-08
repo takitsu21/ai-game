@@ -139,12 +139,12 @@ void gameLoop(Board board) {
         board.printCases();
         if (board.getIsJ1Turn()) {
 
-            pair<int, bool> res = getIAMove(board, true, 2, &winNbMoveJ1);
+            pair<int, bool> res = getIAMove(board, true, 6, &winNbMoveJ1);
             x = res.first;
             isRed = res.second;
 
         } else {
-            pair<int, bool> res = getIAMove(board, false, 6, &winNbMoveJ2);
+            pair<int, bool> res = getIAMove(board, false, 4, &winNbMoveJ2);
             x = res.first;
             isRed = res.second;
         }

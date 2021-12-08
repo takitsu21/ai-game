@@ -36,7 +36,7 @@ public:
 
     void addPieces(int pieces);
 
-    int evaluate(bool AIPlaying) const;
+    int evaluate(bool isJ1, bool AIPlaying) const;
 
     bool play(int move, bool isRed);
 
