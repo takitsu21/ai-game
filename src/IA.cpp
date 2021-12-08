@@ -73,13 +73,10 @@ int negamax(Board &currentBoard, bool AIPlaying, int depth, int depthMax, int al
             if (score == 64) { // Win
                 *winNbMove = depth;
                 cout << "WIIN " << *winNbMove << endl;
-                return 64;
+                return 100;
             }
             return 1 * (score);
         } else {
-            if (score == -64) {
-
-            }
             return -1 * (score);
         }
     }
@@ -151,7 +148,6 @@ int evaluateDepth(Board board, bool isJ1, int depthMax) {
             }
         }
     }
-    return depthMax;
     if (nbMoves <= 8) {
         depth = depthMax+1;
     }
