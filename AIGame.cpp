@@ -166,11 +166,11 @@ void gameLoop(Board board) {
         board.printCases();
         if (board.getIsJ1Turn()) {
 //            pair<int, bool> res = getPlayerMove(true);
-            pair<int, bool> res = getIAMoveThread(board, true, 6, &winNbMoveJ1);
+            pair<int, bool> res = getIAMoveThread(board, true, 7, &winNbMoveJ1);
             x = res.first;
             isRed = res.second;
         } else {
-            pair<int, bool> res = getIAMove(board, false, 6, &winNbMoveJ2);
+            pair<int, bool> res = getIAMove(board, false, 5, &winNbMoveJ2);
             x = res.first;
             isRed = res.second;
         }

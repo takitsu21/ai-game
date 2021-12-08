@@ -2,6 +2,7 @@
 // Created by antoi on 08/12/2021.
 //
 #include <thread>
+#include <array>
 
 #include "IA.h"
 
@@ -121,7 +122,7 @@ int minFromArrayPtr(array<int*, TAB_VALUES_SIZE> tabValues) {
 }
 
 void negMaxThread(Board currentBoard, bool AIPlaying, int depth, int depthMax, long long *acc, bool isJ1, int *res) {
-    int score = negamax(currentBoard, !AIPlaying, depth + 1, depthMax, acc, isJ1, false);
+    int score = negamax(currentBoard, AIPlaying, depth, depthMax, acc, isJ1, false);
     *res = score;
 }
 
