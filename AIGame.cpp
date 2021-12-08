@@ -101,7 +101,7 @@ pair<int, bool> getIAMove(Board board, bool isJ1, int depthMax, int *winNbMove) 
         cout << "IA J2 Turn:" << endl;
     }
 
-    //depthMax = evaluateDepth(board, isJ1, depthMax);
+    depthMax = evaluateDepth(board, isJ1, depthMax);
     cout << "Depth: " << depthMax << endl;
 
     x = negamax(board, true, 0, depthMax, &acc, isJ1, true);
@@ -128,7 +128,7 @@ void gameLoop(Board board) {
     int winNbMoveJ2 = 20;
 
 
-    while (!board.isEnd()) {
+    while (!board.isEnd(true, board.getIsJ1Turn())) {
         int x;
         bool isRed;
         bool validMove;
@@ -138,13 +138,13 @@ void gameLoop(Board board) {
         cout << "Tour: " << nbTour << endl;
         board.printCases();
         if (board.getIsJ1Turn()) {
-
-            pair<int, bool> res = getIAMove(board, true, 6, &winNbMoveJ1);
+//            pair<int, bool> res = getPlayerMove(true);
+            pair<int, bool> res = getIAMove(board, true, 7, &winNbMoveJ1);
             x = res.first;
             isRed = res.second;
-
-        } else {
-            pair<int, bool> res = getIAMove(board, false, 4, &winNbMoveJ2);
+        }
+        else {
+            pair<int, bool> res = getIAMove(board, false, 2, &winNbMoveJ2);
             x = res.first;
             isRed = res.second;
         }

@@ -40,7 +40,7 @@ public:
 
     bool play(int move, bool isRed);
 
-    bool isEnd() const;
+    bool isEnd(bool AIPlaying, bool isJ1) const;
 
     bool checkValidMove(int move, bool isRed);
 

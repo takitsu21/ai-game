@@ -63,7 +63,7 @@ int negamax(Board &currentBoard, bool AIPlaying, int depth, int depthMax, long l
     int tabValues[TAB_VALUES_SIZE];
     *acc = *acc + 1;
 
-    if (currentBoard.isEnd() || depth == depthMax) {
+    if (currentBoard.isEnd(AIPlaying, isJ1) || depth == depthMax) {
         int score = currentBoard.evaluate(isJ1, AIPlaying);
         return score;
     }

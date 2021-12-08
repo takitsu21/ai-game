@@ -155,12 +155,12 @@ bool Board::play(int move, bool isRed) {
     return true;
 }
 
-
-bool Board::isEnd() const {
+bool Board::isEnd(bool AIPlaying, bool isJ1) const {
     return ((J1Pieces > 32 || J2Pieces > 32)
-            || (nbJ1Seeds == 0 || nbJ2Seeds == 0)
             || (J1Pieces == 32 && J2Pieces == 32)
-            || (nbSeeds < 8));
+            || (nbSeeds < 8)
+            || (AIPlaying && isJ1 && nbJ1Seeds == 0)
+            || (AIPlaying && !isJ1 && nbJ2Seeds == 0));
 }
 
 
