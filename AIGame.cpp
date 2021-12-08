@@ -47,7 +47,6 @@ void winner(const Board &board) {
 }
 
 
-
 string inputPlayer(bool isJ1) {
     if (isJ1) {
         printf("\n\nJ1 : ");
@@ -89,32 +88,34 @@ pair<int, bool> getPlayerMove(bool isJ1) {
     return parse(s);
 }
 
-pair<int, bool> getIAMove(Board board, bool isJ1, int depthMax) {
+pair<int, bool> getIAMove(Board board, bool isJ1, int depthMax, int *winNbMove) {
     int x;
     bool isRed;
     long long acc = 0;
     clock_t time_req = clock();
 
-    x = negamax(board, true, 0, depthMax, -100, 100, &acc, isJ1);
-
     if (isJ1) {
-        printf("\n\nL'IA J1 ");
+        cout << "IA J1 Turn:" << endl;
     }
     else {
-        printf("\n\nL'IA J2 ");
+        cout << "IA J2 Turn:" << endl;
     }
+
+    //depthMax = evaluateDepth(board, isJ1, depthMax);
+    cout << "Depth: " << depthMax << endl;
+
+    x = negamax(board, true, 0, depthMax, -100, 100, &acc, isJ1, winNbMove);
+
+    cout << "Number of nodes: " << acc << endl;
+    cout << "Time to respond: " << (float) (clock() - time_req) / CLOCKS_PER_SEC << endl;
 
     if (x < SIZE) {
         isRed = true;
-        printf("negamax : joue la case %dR, nb noeuds parcouru = %lld en %.3f seconds\n\n", x + 1,
-               acc,
-               (float) (clock() - time_req) / CLOCKS_PER_SEC);
+        cout << "Move: " << x+1 << "R" << endl;
     } else {
         isRed = false;
         x -= SIZE;
-        printf("negamax : joue la case %dB, nb noeuds parcouru = %lld en %.3f seconds\n\n", x + 1,
-               acc,
-               (float) (clock() - time_req) / CLOCKS_PER_SEC);
+        cout << "Move: " << x+1 << "B" << endl;
     }
 
     return make_pair(x, isRed);
@@ -122,25 +123,32 @@ pair<int, bool> getIAMove(Board board, bool isJ1, int depthMax) {
 
 void gameLoop(Board board) {
     int nbTour = 0;
+
+    int winNbMoveJ1 = 20;
+    int winNbMoveJ2 = 20;
+
+
     while (!board.isEnd()) {
-        printf("TOUR NUM: %d\n", nbTour);
-        nbTour++;
-        board.printCases();
         int x;
         bool isRed;
         bool validMove;
 
+        cout << "\n\n";
+        cout << "############################################################################" << endl;
+        cout << "Tour: " << nbTour << endl;
+        board.printCases();
         if (board.getIsJ1Turn()) {
 
-            pair<int, bool> res = getIAMove(board, true, 5);
+            pair<int, bool> res = getIAMove(board, true, 7, &winNbMoveJ1);
             x = res.first;
             isRed = res.second;
 
         } else {
-            pair<int, bool> res = getIAMove(board, false, 8);
+            pair<int, bool> res = getIAMove(board, false, 3, &winNbMoveJ2);
             x = res.first;
             isRed = res.second;
         }
+
 
         if (x == -1) {
             cout << "Coup invalide !" << endl;
@@ -150,6 +158,7 @@ void gameLoop(Board board) {
         if (validMove) {
             board.nextPlayer();
         }
+        nbTour++;
     }
     board.printCases(); // etat final du jeu
     printf("\n");

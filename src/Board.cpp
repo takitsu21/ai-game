@@ -53,9 +53,7 @@ Board::~Board() {
 }
 
 void Board::printCases() {
-    printf("\n\n Nouveau tour: \n");
-
-    printf("pieces J1 : %d, pieces J2 : %d\n\n", J1Pieces, J2Pieces);
+    printf("score J1 : %d\nscore J2 : %d\n\n", J1Pieces, J2Pieces);
 
     for (int i = 0; i < SIZE / 2; i++) {
         printf("|%dR %dB| ",
@@ -76,6 +74,7 @@ void Board::printCases() {
     for (int i = SIZE; i > SIZE / 2; i--) {
         printf("   %d   ", i);
     }
+    std::cout << "\n\n";
 }
 
 

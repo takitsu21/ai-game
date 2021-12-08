@@ -14,7 +14,8 @@ using namespace std;
 
 int maxFromArray(const int *tabValues);
 int minFromArray(const int *tabValues);
-int negamax(Board &currentBoard, bool AIPlaying, int depth, int depthMax, int alpha, int beta, long long *acc, bool isJ1);
+int negamax(Board &currentBoard, bool AIPlaying, int depth, int depthMax, int alpha, int beta, long long *acc, bool isJ1, int *winNbMove);
+int evaluateDepth(Board board, bool isJ1, int depthMax);
 
 
 #endif //AI_GAME_IA_H

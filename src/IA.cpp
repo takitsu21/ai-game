@@ -59,20 +59,28 @@ int minFromArray(const int *tabValues) {
     }
 }
 
-int negamax(Board &currentBoard, bool AIPlaying, int depth, int depthMax, int alpha, int beta, long long *acc, bool isJ1) {
+int negamax(Board &currentBoard, bool AIPlaying, int depth, int depthMax, int alpha, int beta, long long *acc, bool isJ1, int *winNbMove) {
     int tabValues[TAB_VALUES_SIZE];
     *acc = *acc + 1;
-//    int score = currentBoard.evaluate(isJ1);
-//    if (score == 64) {
-//        return score;
-//    }
+
+    if (depth >= *winNbMove) {
+        return 0;
+    }
     if (currentBoard.isEnd() || depth == depthMax) {
         int score = currentBoard.evaluate(isJ1);
 
         if (AIPlaying) {
-            return 1 * (score - depth);
+            if (score == 64) { // Win
+                *winNbMove = depth;
+                cout << "WIIN " << *winNbMove << endl;
+                return 64;
+            }
+            return 1 * (score);
         } else {
-            return -1 * (score + depth);
+            if (score == -64) {
+
+            }
+            return -1 * (score);
         }
     }
     int bestMove = -100;
@@ -88,7 +96,7 @@ int negamax(Board &currentBoard, bool AIPlaying, int depth, int depthMax, int al
                 }
 
                 bestMove = max(bestMove, -negamax(nextBoard, !AIPlaying, depth + 1, depthMax,
-                                                  -beta, -alpha, acc, isJ1));
+                                                  -beta, -alpha, acc, isJ1, winNbMove));
                 alpha = max(alpha, bestMove);
 
                 if (alpha >= beta) { // peut etre renvoyé le best move
@@ -128,4 +136,30 @@ int negamax(Board &currentBoard, bool AIPlaying, int depth, int depthMax, int al
         res = minFromArray(tabValues);
     }
     return res;
+}
+
+int evaluateDepth(Board board, bool isJ1, int depthMax) {
+    int nbMoves = 0;
+    int depth;
+    for (int i = 0; i < SIZE; i++) {
+
+        for (int colorJ = 0; colorJ < 2; colorJ++) {
+            Board nextBoard = board.copy();
+            bool color_bool = colorJ == 0;
+            if (nextBoard.checkValidMove(i, color_bool)) {
+                nbMoves++;
+            }
+        }
+    }
+    return depthMax;
+    if (nbMoves <= 8) {
+        depth = depthMax+1;
+    }
+    else if (nbMoves <= 10) {
+        depth = depthMax;
+    }
+    else { // > 14
+        depth = depthMax-1;
+    }
+    return depth;
 }
