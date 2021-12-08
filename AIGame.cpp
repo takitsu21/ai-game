@@ -8,12 +8,7 @@
 #include <string>
 
 
-void printTab(int *tab) {
-    for (int i = 0; i < TAB_VALUES_SIZE; i++) {
-        printf(" [%d] ", tab[i]);
-    }
-    printf("\n\n\n------------------------------------\n\n\n");
-}
+
 
 
 void winner(const Board &board) {
@@ -139,12 +134,12 @@ void gameLoop(Board board) {
         board.printCases();
         if (board.getIsJ1Turn()) {
 //            pair<int, bool> res = getPlayerMove(true);
-            pair<int, bool> res = getIAMove(board, true, 7, &winNbMoveJ1);
+            pair<int, bool> res = getIAMove(board, true, 4, &winNbMoveJ1);
             x = res.first;
             isRed = res.second;
         }
         else {
-            pair<int, bool> res = getIAMove(board, false, 2, &winNbMoveJ2);
+            pair<int, bool> res = getIAMove(board, false, 7, &winNbMoveJ2);
             x = res.first;
             isRed = res.second;
         }

@@ -32,6 +32,13 @@ int maxFromArray(const int *tabValues) {
     }
 }
 
+void printTab(int *tab) {
+    for (int i = 0; i < TAB_VALUES_SIZE; i++) {
+        printf(" [%d] ", tab[i]);
+    }
+    printf("\n\n\n------------------------------------\n\n\n");
+}
+
 int minFromArray(const int *tabValues) {
     int minBlue = 100;
     int idxBlue = 0;
@@ -113,6 +120,7 @@ int negamax(Board &currentBoard, bool AIPlaying, int depth, int depthMax, long l
         } else {
             res = minFromArray(tabValues);
         }
+        printTab(tabValues);
     }
     else {
         int idx;
@@ -139,14 +147,17 @@ int evaluateDepth(Board board, bool isJ1, int depthMax) {
             }
         }
     }
-    if (nbMoves <= 8) {
-        depth = depthMax+1;
+    if (nbMoves <= 2) {
+        depth = depthMax + 3;
     }
-    else if (nbMoves <= 10) {
+    else if (nbMoves <= 7) {
+        depth = depthMax + 2;
+    } else if (nbMoves <= 8) {
+        depth = depthMax + 1;
+    } else if (nbMoves <= 10) {
         depth = depthMax;
-    }
-    else { // > 14
-        depth = depthMax-1;
+    } else { // > 14
+        depth = depthMax - 1;
     }
     return depth;
 }
