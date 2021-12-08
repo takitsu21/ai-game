@@ -104,7 +104,7 @@ pair<int, bool> getIAMove(Board board, bool isJ1, int depthMax, int *winNbMove) 
     //depthMax = evaluateDepth(board, isJ1, depthMax);
     cout << "Depth: " << depthMax << endl;
 
-    x = negamax(board, true, 0, depthMax, -100, 100, &acc, isJ1, winNbMove);
+    x = negamax(board, true, 0, depthMax, &acc, isJ1, true);
 
     cout << "Number of nodes: " << acc << endl;
     cout << "Time to respond: " << (float) (clock() - time_req) / CLOCKS_PER_SEC << endl;
@@ -139,7 +139,7 @@ void gameLoop(Board board) {
         board.printCases();
         if (board.getIsJ1Turn()) {
 
-            pair<int, bool> res = getIAMove(board, true, 3, &winNbMoveJ1);
+            pair<int, bool> res = getIAMove(board, true, 2, &winNbMoveJ1);
             x = res.first;
             isRed = res.second;
 

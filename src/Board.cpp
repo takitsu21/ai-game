@@ -214,6 +214,13 @@ void Board::addPieces(int pieces) {
 
 int Board::evaluate(bool isJ1) const {
 
+    if (isJ1) {
+        return J1Pieces - J2Pieces;
+    }
+    else {
+        return J2Pieces - J1Pieces;
+    }
+
     int x;
     if (isJ1) {
         if (nbJ1Seeds <= 0) {

@@ -33,90 +33,79 @@ int maxFromArray(const int *tabValues) {
 }
 
 int minFromArray(const int *tabValues) {
-    int maxBlue = 100;
+    int minBlue = 100;
     int idxBlue = 0;
-    int maxRed = 100;
+    int minRed = 100;
     int idxRed = 0;
 
     for (int i = 0; i < SIZE; i++) { // MIN RED
-        if (tabValues[i] < maxRed) {
-            maxRed = tabValues[i];
+        if (tabValues[i] < minRed) {
+            minRed = tabValues[i];
             idxRed = i;
         }
     }
 
     for (int i = SIZE; i < TAB_VALUES_SIZE; i++) { // MIN BLUE
-        if (tabValues[i] < maxBlue) {
-            maxBlue = tabValues[i];
+        if (tabValues[i] < minBlue) {
+            minBlue = tabValues[i];
             idxBlue = i;
         }
     }
 
-    if (maxBlue > maxRed) {
+    if (minRed < minBlue) {
         return idxRed;
     } else {
         return idxBlue;
     }
 }
 
-int negamax(Board &currentBoard, bool AIPlaying, int depth, int depthMax, int alpha, int beta, long long *acc, bool isJ1, int *winNbMove) {
+int negamax(Board &currentBoard, bool AIPlaying, int depth, int depthMax, long long *acc, bool isJ1, bool firstCall) {
     int tabValues[TAB_VALUES_SIZE];
     *acc = *acc + 1;
 
-    if (depth >= *winNbMove) {
-        return 0;
-    }
-    if (currentBoard.isEnd() || depth == depthMax) {
-        int score = currentBoard.evaluate(isJ1);
-
+    if (currentBoard.isEnd()) {
         if (AIPlaying) {
-            if (score == 64) { // Win
-                *winNbMove = depth;
-                cout << "WIIN " << *winNbMove << endl;
-                return 100;
-            }
-            return 1 * (score);
-        } else {
-            return -1 * (score);
+            return 64;
+        }
+        else {
+            return -64;
         }
     }
-    int bestMove = -100;
+
+    if (depth == depthMax) {
+        int score = currentBoard.evaluate(isJ1);
+        return score;
+    }
+
+    int bestMove;
     for (int i = 0; i < SIZE; i++) {
-
         for (int colorJ = 0; colorJ < 2; colorJ++) {
-            Board nextBoard = currentBoard.copy();
-            bool color_bool = colorJ == 0;
 
-            if (nextBoard.checkValidMove(i, color_bool)) {
-                if (nextBoard.play(i, color_bool)) {
+            Board nextBoard = currentBoard.copy();
+            bool isRed = colorJ == 0;
+
+            if (nextBoard.checkValidMove(i, isRed)) {
+                if (nextBoard.play(i, isRed)) {
                     nextBoard.nextPlayer();
                 }
 
-                bestMove = max(bestMove, -negamax(nextBoard, !AIPlaying, depth + 1, depthMax,
-                                                  -beta, -alpha, acc, isJ1, winNbMove));
-                alpha = max(alpha, bestMove);
+                bestMove = negamax(nextBoard, !AIPlaying, depth + 1, depthMax, acc, isJ1, false);
 
-                if (alpha >= beta) { // peut etre renvoyé le best move
-                    if (color_bool) {
-                        return i;
-                    } else {
-                        return i + SIZE;
-                    }
-                }
-                if (color_bool) { // if red
+                if (isRed) { // if red
                     tabValues[i] = bestMove;
                 } else { // if blue
                     tabValues[i + SIZE] = bestMove;
                 }
-            } else {
+            }
+            else {
                 if (AIPlaying) {
-                    if (color_bool) { // if red
+                    if (isRed) { // if red
                         tabValues[i] = -100;
                     } else { // if blue
                         tabValues[i + SIZE] = -100;
                     }
                 } else {
-                    if (color_bool) { // if red tabvalues 16
+                    if (isRed) { // if red tabvalues 16
                         tabValues[i] = 100;
                     } else { // if blue tabvalues >= 16
                         tabValues[i + SIZE] = 100;
@@ -127,10 +116,21 @@ int negamax(Board &currentBoard, bool AIPlaying, int depth, int depthMax, int al
     }
 
     int res;
-    if (AIPlaying) {
-        res = maxFromArray(tabValues);
-    } else {
-        res = minFromArray(tabValues);
+    if (firstCall) {
+        if (AIPlaying) {
+            res = maxFromArray(tabValues);
+        } else {
+            res = minFromArray(tabValues);
+        }
+    }
+    else {
+        int idx;
+        if (AIPlaying) {
+            idx = maxFromArray(tabValues);
+        } else {
+            idx = minFromArray(tabValues);
+        }
+        res = tabValues[idx];
     }
     return res;
 }
