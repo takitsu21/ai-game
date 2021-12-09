@@ -14,9 +14,9 @@ using namespace std;
 
 int maxFromArray(const int *tabValues);
 int minFromArray(const int *tabValues);
-int negamax(Board &currentBoard, bool AIPlaying, int depth, int depthMax, long long *acc, bool isJ1, bool firstCall);
+int negamax(Board &currentBoard, bool AIPlaying, int depth, int depthMax, long long *acc, bool isJ1, bool firstCall, int alpha, int beta);
 int negamaxStart(Board &currentBoard, bool AIPlaying, int depth, int depthMax, long long *acc, bool isJ1);
-int evaluateDepth(Board board, bool isJ1, int depthMax);
+int evaluateDepth(Board board, bool isJ1, int depthMax, int nbTour);
 
 
 #endif //AI_GAME_IA_H

@@ -95,11 +95,11 @@ pair<int, bool> getIAMove(Board board, bool isJ1, int depthMax, int *winNbMove) 
     } else {
         cout << "IA J2 Turn:" << endl;
     }
-
-    //depthMax = evaluateDepth(board, isJ1, depthMax);
+    long long nodeMax = pow(16, depthMax) + 17;
+//    depthMax = evaluateDepth(board, isJ1, depthMax);
     cout << "Depth: " << depthMax << endl;
 
-    x = negamax(board, true, 0, depthMax, &acc, isJ1, true);
+    x = negamax(board, true, 0, depthMax, &acc, isJ1, true, -100, 100);
 
     cout << "Number of nodes: " << acc << endl;
     cout << "Time to respond: " << (float) (clock() - time_req) / CLOCKS_PER_SEC << endl;
@@ -116,7 +116,7 @@ pair<int, bool> getIAMove(Board board, bool isJ1, int depthMax, int *winNbMove) 
     return make_pair(x, isRed);
 }
 
-pair<int, bool> getIAMoveThread(Board board, bool isJ1, int depthMax, int *winNbMove) {
+pair<int, bool> getIAMoveThread(Board board, bool isJ1, int depthMax, int *winNbMove, int nbTour) {
     int x;
     bool isRed;
     long long acc = 0;
@@ -128,7 +128,7 @@ pair<int, bool> getIAMoveThread(Board board, bool isJ1, int depthMax, int *winNb
         cout << "IA J2 Turn:" << endl;
     }
 
-    //depthMax = evaluateDepth(board, isJ1, depthMax);
+    depthMax = evaluateDepth(board, isJ1, depthMax, nbTour);
     cout << "Depth: " << depthMax << endl;
 
     x = negamaxStart(board, true, 0, depthMax, &acc, isJ1);
@@ -166,11 +166,11 @@ void gameLoop(Board board) {
         board.printCases();
         if (board.getIsJ1Turn()) {
 //            pair<int, bool> res = getPlayerMove(true);
-            pair<int, bool> res = getIAMoveThread(board, true, 7, &winNbMoveJ1);
+            pair<int, bool> res = getIAMoveThread(board, true, 4, &winNbMoveJ1, nbTour);
             x = res.first;
             isRed = res.second;
         } else {
-            pair<int, bool> res = getIAMove(board, false, 5, &winNbMoveJ2);
+            pair<int, bool> res = getIAMoveThread(board, false, 8, &winNbMoveJ2, nbTour);
             x = res.first;
             isRed = res.second;
         }

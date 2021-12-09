@@ -219,36 +219,31 @@ int Board::evaluate(bool isJ1, bool AIPlaying) const {
     if (isJ1) {
         if (!AIPlaying && nbJ2Seeds <= 0) { // Si on est joueur 1 et qu'on évalue un coup de l'IA
             x = 64;
-        }
-        else if (AIPlaying && nbJ1Seeds <= 0) { // on évalue le coup de l'adversaire (J2)
+        } else if (AIPlaying && nbJ1Seeds <= 0) { // on évalue le coup de l'adversaire (J2)
             x = -64;
-        }
-        else if (J2Pieces > 32) {
+        } else if (!AIPlaying && nbSeeds < 8 && J1Pieces < J2Pieces) {
+            x = -64;
+        } else if (AIPlaying && nbSeeds < 8 && J1Pieces > J2Pieces) {
+            x = 64;
+        } else if (J2Pieces > 32) {
             x = -64;
         } else if (J1Pieces > 32) {
-            x = 64;
-        } else if (nbSeeds < 8 && J1Pieces < J2Pieces ) {
-            x = -64;
-        } else if ( nbSeeds < 8 && J1Pieces > J2Pieces) {
             x = 64;
         } else {
             x = J1Pieces - J2Pieces;
         }
-    }
-    else {
+    } else {
         if (!AIPlaying && nbJ1Seeds <= 0) { // Si on est joueur 2 et qu'on évalue notre propre coup
             x = 64;
-        }
-        else if (AIPlaying && nbJ2Seeds <= 0) { // on évalue le coup de l'adversaire (J2)
+        } else if (AIPlaying && nbJ2Seeds <= 0) { // on évalue le coup de l'adversaire (J2)
             x = -64;
-        }
-        else if (J1Pieces > 32) {
+        } else if (!AIPlaying && nbSeeds < 8 && J2Pieces < J1Pieces) {
+            x = -64;
+        } else if (AIPlaying && nbSeeds < 8 && J2Pieces > J1Pieces) {
+            x = 64;
+        } else if (J1Pieces > 32) {
             x = -64;
         } else if (J2Pieces > 32) {
-            x = 64;
-        } else if (nbSeeds < 8 && J2Pieces < J1Pieces) {
-            x = -64;
-        } else if (nbSeeds < 8 && J2Pieces > J1Pieces) {
             x = 64;
         } else {
             x = J2Pieces - J1Pieces;
