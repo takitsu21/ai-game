@@ -266,7 +266,7 @@ int negamax(Board &currentBoard, bool AIPlaying, int depth, int depthMax, long l
 
 int evaluateDepth(Board board, bool isJ1, int depthMax, int nbTour) {
     int nbMoves = 0;
-    int depth;
+    int depth = depthMax;
     for (int i = 0; i < SIZE; i++) {
 
         for (int colorJ = 0; colorJ < 2; colorJ++) {
@@ -278,17 +278,16 @@ int evaluateDepth(Board board, bool isJ1, int depthMax, int nbTour) {
         }
     }
     if (nbTour >= 100) {
-        depth = depthMax + 14;
+        depth = min(depthMax + 5, 13);
+    } else if (nbTour <= 10) {
+        depth = depthMax - 1;
     } else if (nbMoves <= 2) {
         depth = depthMax + 3;
-    } else if (nbMoves <= 4) {
-        depth = depthMax + 2;
-    } else if (nbMoves <= 8) {
+    } else if (nbMoves <= 5) {
         depth = depthMax + 1;
-    } else if (nbMoves <= 10) {
+    } else if (nbMoves <= 14) {
         depth = depthMax;
-    } else { // > 14
-        depth = depthMax - 1;
     }
+
     return depth;
 }

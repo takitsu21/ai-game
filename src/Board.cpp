@@ -225,6 +225,8 @@ int Board::evaluate(bool isJ1, bool AIPlaying) const {
             x = -64;
         } else if (AIPlaying && nbSeeds < 8 && J1Pieces > J2Pieces) {
             x = 64;
+        } else if (nbSeeds < 8 && J1Pieces == J2Pieces) {
+            x = 0;
         } else if (J2Pieces > 32) {
             x = -64;
         } else if (J1Pieces > 32) {
@@ -241,6 +243,8 @@ int Board::evaluate(bool isJ1, bool AIPlaying) const {
             x = -64;
         } else if (AIPlaying && nbSeeds < 8 && J2Pieces > J1Pieces) {
             x = 64;
+        } else if (nbSeeds < 8 && J1Pieces == J2Pieces) {
+            x = 0;
         } else if (J1Pieces > 32) {
             x = -64;
         } else if (J2Pieces > 32) {
