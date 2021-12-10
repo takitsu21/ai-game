@@ -169,7 +169,7 @@ void gameLoop(Board board) {
                 res = getPlayerMove(true);
             } else {
                 clock_t time_req = clock();
-                res = getIAMoveThread(board, true, 8, &winNbMoveJ1, nbTour);
+                res = getIAMoveThread(board, true, 9, &winNbMoveJ1, nbTour);
                 cout << "Time to respond: " << (float) (clock() - time_req) / CLOCKS_PER_SEC << endl;
             }
             x = res.first;
@@ -179,13 +179,12 @@ void gameLoop(Board board) {
                 res = getPlayerMove(false);
             } else {
                 clock_t time_req = clock();
-                pair<int, bool> res = getIAMoveThread(board, false, 7, &winNbMoveJ2, nbTour);
+                res = getIAMoveThread(board, false, 8, &winNbMoveJ2, nbTour);
                 cout << "Time to respond: " << (float) (clock() - time_req) / CLOCKS_PER_SEC << endl;
-                x = res.first;
-                isRed = res.second;
             }
+            x = res.first;
+            isRed = res.second;
         }
-
 
         if (x == -1) {
             cout << "Coup invalide !" << endl;

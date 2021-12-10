@@ -199,6 +199,7 @@ int negamax(Board &currentBoard, bool AIPlaying, int depth, int depthMax, long l
         int score = currentBoard.evaluate(isJ1, AIPlaying);
         return score;
     }
+
     int tabValues[TAB_VALUES_SIZE] = {
             -100, -100, -100, -100,
             -100, -100, -100, -100,
@@ -277,12 +278,12 @@ int evaluateDepth(Board board, bool isJ1, int depthMax, int nbTour) {
             }
         }
     }
-    if (nbTour >= 100) {
-        depth = min(depthMax + 5, 13);
+    if (nbTour >= 70) {
+        depth = min(depthMax + 5, 14);
     } else if (nbTour <= 10) {
         depth = depthMax - 1;
     } else if (nbMoves <= 2) {
-        depth = depthMax + 3;
+        depth = depthMax + 2;
     } else if (nbMoves <= 5) {
         depth = depthMax + 1;
     } else if (nbMoves <= 14) {
