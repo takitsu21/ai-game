@@ -24,7 +24,7 @@ private:
 
 public:
     Board();
-    Board(bool test);
+    explicit Board(bool test);
     Board(const Board& board);
 
     ~Board();

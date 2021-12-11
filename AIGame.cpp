@@ -6,7 +6,6 @@
 #include "src/IA.h"
 #include <ctime>
 #include <string>
-#include <thread>
 #include <array>
 
 
@@ -99,7 +98,7 @@ pair<int, bool> getIAMove(Board board, bool isJ1, int depthMax, int *winNbMove) 
 //    depthMax = evaluateDepth(board, isJ1, depthMax);
     cout << "Depth: " << depthMax << endl;
 
-    x = negamax(board, true, 0, depthMax, &acc, isJ1, true, -100, 100);
+    x = negamax(board, true, 0, depthMax, &acc, isJ1, true, -100, 100, NULL);
 
     cout << "Number of nodes: " << acc << endl;
     cout << "Time to respond: " << (float) (clock() - time_req) / CLOCKS_PER_SEC << endl;
@@ -116,7 +115,7 @@ pair<int, bool> getIAMove(Board board, bool isJ1, int depthMax, int *winNbMove) 
     return make_pair(x, isRed);
 }
 
-pair<int, bool> getIAMoveThread(Board board, bool isJ1, int depthMax, int *winNbMove, int nbTour) {
+pair<int, bool> getIAMoveThread(Board board, bool isJ1, int depthMax, int *winNbMove, int nbTour, clock_t clock) {
     int x;
     bool isRed;
     long long acc = 0;
@@ -130,7 +129,7 @@ pair<int, bool> getIAMoveThread(Board board, bool isJ1, int depthMax, int *winNb
     depthMax = evaluateDepth(board, isJ1, depthMax, nbTour);
     cout << "Depth: " << depthMax << endl;
 
-    x = negamaxStart(board, true, 0, depthMax, &acc, isJ1);
+    x = negamaxStart(board, true, 0, depthMax, &acc, isJ1, clock);
 
     cout << "Number of nodes: " << acc << endl;
 
@@ -169,7 +168,7 @@ void gameLoop(Board board) {
                 res = getPlayerMove(true);
             } else {
                 clock_t time_req = clock();
-                res = getIAMoveThread(board, true, 9, &winNbMoveJ1, nbTour);
+                res = getIAMoveThread(board, true, 8, &winNbMoveJ1, nbTour, time_req);
                 cout << "Time to respond: " << (float) (clock() - time_req) / CLOCKS_PER_SEC << endl;
             }
             x = res.first;
@@ -179,7 +178,7 @@ void gameLoop(Board board) {
                 res = getPlayerMove(false);
             } else {
                 clock_t time_req = clock();
-                res = getIAMoveThread(board, false, 8, &winNbMoveJ2, nbTour);
+                res = getIAMoveThread(board, false, 8, &winNbMoveJ2, nbTour, time_req);
                 cout << "Time to respond: " << (float) (clock() - time_req) / CLOCKS_PER_SEC << endl;
             }
             x = res.first;
