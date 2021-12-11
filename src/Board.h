@@ -2,7 +2,6 @@
 
 #include <iostream>
 
-
 #pragma once
 #define SIZE 16
 #define MAX_SEEDS 64

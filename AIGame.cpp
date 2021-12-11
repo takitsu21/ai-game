@@ -6,18 +6,19 @@
 #include "src/IA.h"
 #include <ctime>
 #include <string>
-
-
-
+#include <thread>
+#include <array>
 
 
 void winner(const Board &board) {
+
     // famine
     printf("j1 seeds %d\n", board.getNbJ1Seeds());
     printf("j2 seeds %d\n", board.getNbJ2Seeds());
     printf("J1 PIECES %d\n", board.getNbJ1Pieces());
     printf("J2 PIECES %d\n", board.getNbJ2Pieces());
     printf("SEEDS %d\n", board.getNbSeeds());
+
     if (board.getNbJ1Pieces() > 32) {
         printf("J1 WIN\n");
     } else if (board.getNbJ2Pieces() > 32) {
@@ -91,26 +92,55 @@ pair<int, bool> getIAMove(Board board, bool isJ1, int depthMax, int *winNbMove) 
 
     if (isJ1) {
         cout << "IA J1 Turn:" << endl;
-    }
-    else {
+    } else {
         cout << "IA J2 Turn:" << endl;
     }
-
-    depthMax = evaluateDepth(board, isJ1, depthMax);
+//    long long nodeMax = pow(16, depthMax) + 17;
+//    depthMax = evaluateDepth(board, isJ1, depthMax);
     cout << "Depth: " << depthMax << endl;
 
-    x = negamax(board, true, 0, depthMax, &acc, isJ1, true);
+    x = negamax(board, true, 0, depthMax, &acc, isJ1, true, -100, 100);
 
     cout << "Number of nodes: " << acc << endl;
     cout << "Time to respond: " << (float) (clock() - time_req) / CLOCKS_PER_SEC << endl;
 
     if (x < SIZE) {
         isRed = true;
-        cout << "Move: " << x+1 << "R" << endl;
+        cout << "Move: " << x + 1 << "R" << endl;
     } else {
         isRed = false;
         x -= SIZE;
-        cout << "Move: " << x+1 << "B" << endl;
+        cout << "Move: " << x + 1 << "B" << endl;
+    }
+
+    return make_pair(x, isRed);
+}
+
+pair<int, bool> getIAMoveThread(Board board, bool isJ1, int depthMax, int *winNbMove, int nbTour) {
+    int x;
+    bool isRed;
+    long long acc = 0;
+
+    if (isJ1) {
+        cout << "IA J1 Turn:" << endl;
+    } else {
+        cout << "IA J2 Turn:" << endl;
+    }
+
+    depthMax = evaluateDepth(board, isJ1, depthMax, nbTour);
+    cout << "Depth: " << depthMax << endl;
+
+    x = negamaxStart(board, true, 0, depthMax, &acc, isJ1);
+
+    cout << "Number of nodes: " << acc << endl;
+
+    if (x < SIZE) {
+        isRed = true;
+        cout << "Move: " << x + 1 << "R" << endl;
+    } else {
+        isRed = false;
+        x -= SIZE;
+        cout << "Move: " << x + 1 << "B" << endl;
     }
 
     return make_pair(x, isRed);
@@ -121,29 +151,40 @@ void gameLoop(Board board) {
 
     int winNbMoveJ1 = 20;
     int winNbMoveJ2 = 20;
-
+    int J1IA = true;
+    int J2IA = true;
 
     while (!board.isEnd(true, board.getIsJ1Turn())) {
         int x;
         bool isRed;
         bool validMove;
+        pair<int, bool> res;
 
         cout << "\n\n";
         cout << "############################################################################" << endl;
         cout << "Tour: " << nbTour << endl;
         board.printCases();
         if (board.getIsJ1Turn()) {
-//            pair<int, bool> res = getPlayerMove(true);
-            pair<int, bool> res = getIAMove(board, true, 4, &winNbMoveJ1);
+            if (!J1IA) {
+                res = getPlayerMove(true);
+            } else {
+                clock_t time_req = clock();
+                res = getIAMoveThread(board, true, 9, &winNbMoveJ1, nbTour);
+                cout << "Time to respond: " << (float) (clock() - time_req) / CLOCKS_PER_SEC << endl;
+            }
+            x = res.first;
+            isRed = res.second;
+        } else {
+            if (!J2IA) {
+                res = getPlayerMove(false);
+            } else {
+                clock_t time_req = clock();
+                res = getIAMoveThread(board, false, 8, &winNbMoveJ2, nbTour);
+                cout << "Time to respond: " << (float) (clock() - time_req) / CLOCKS_PER_SEC << endl;
+            }
             x = res.first;
             isRed = res.second;
         }
-        else {
-            pair<int, bool> res = getIAMove(board, false, 7, &winNbMoveJ2);
-            x = res.first;
-            isRed = res.second;
-        }
-
 
         if (x == -1) {
             cout << "Coup invalide !" << endl;
