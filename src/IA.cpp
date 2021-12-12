@@ -94,7 +94,7 @@ int maxFromArrayPtr(array<int*, TAB_VALUES_SIZE> tabValues) {
     }
 }
 
-int minmax_alphaBeta(Board &currentBoard, bool AIPlaying, int depth, int depthMax, long long *acc, bool isJ1) {
+int minmax_alphaBeta(Board &currentBoard, bool AIPlaying, int depth, int depthMax, long long *acc, bool isJ1, int alpha, int beta) {
 
     *acc = *acc + 1;
 
@@ -133,12 +133,18 @@ int minmax_alphaBeta(Board &currentBoard, bool AIPlaying, int depth, int depthMa
                 }
 
 
-                bestMove = minmax_alphaBeta(nextBoard, !AIPlaying, depth + 1, depthMax, acc, isJ1);
+                bestMove = minmax_alphaBeta(nextBoard, !AIPlaying, depth + 1, depthMax, acc, isJ1, -beta, -alpha);
+
+                alpha = max(alpha, bestMove);
 
                 if (isRed) { // if red
                     tabValues[i] = bestMove;
                 } else { // if blue
                     tabValues[i + SIZE] = bestMove;
+                }
+
+                if (alpha >= beta) {
+                    break;
                 }
             }
         }
@@ -158,7 +164,7 @@ int minmax_alphaBeta(Board &currentBoard, bool AIPlaying, int depth, int depthMa
 }
 
 void minmax_alphaBetaThread(Board currentBoard, bool AIPlaying, int depth, int depthMax, long long *acc, bool isJ1, int *res) {
-    int score = minmax_alphaBeta(currentBoard, AIPlaying, depth, depthMax, acc, isJ1);
+    int score = minmax_alphaBeta(currentBoard, AIPlaying, depth, depthMax, acc, isJ1, -100, 100);
     *res = score;
 }
 
