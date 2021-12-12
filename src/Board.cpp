@@ -213,7 +213,11 @@ void Board::addPieces(int pieces) {
 
 
 int Board::evaluate(bool isJ1, bool AIPlaying, int depth, int depthMax) const {
-
+//    if (isJ1) {
+//        return J1Pieces - J2Pieces;
+//    } else {
+//        return J2Pieces - J1Pieces;
+//    }
     int x;
 
     if (isJ1) {
