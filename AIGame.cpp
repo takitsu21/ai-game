@@ -84,7 +84,7 @@ pair<int, bool> getPlayerMove(bool isJ1) {
     return parse(s);
 }
 
-pair<int, bool> getIAMove(Board board, bool isJ1, int depthMax, int *winNbMove) {
+pair<int, bool> getIAMoveThread(Board board, bool isJ1, int depthMax) {
     int x;
     bool isRed;
     long long acc = 0;
@@ -99,39 +99,7 @@ pair<int, bool> getIAMove(Board board, bool isJ1, int depthMax, int *winNbMove) 
     //depthMax = evaluateDepth(board, isJ1, depthMax);
     cout << "Depth: " << depthMax << endl;
 
-    x = negamax(board, true, 0, depthMax, &acc, isJ1, true);
-
-    cout << "Number of nodes: " << acc << endl;
-    cout << "Time to respond: " << (float) (clock() - time_req) / CLOCKS_PER_SEC << endl;
-
-    if (x < SIZE) {
-        isRed = true;
-        cout << "Move: " << x + 1 << "R" << endl;
-    } else {
-        isRed = false;
-        x -= SIZE;
-        cout << "Move: " << x + 1 << "B" << endl;
-    }
-
-    return make_pair(x, isRed);
-}
-
-pair<int, bool> getIAMoveThread(Board board, bool isJ1, int depthMax, int *winNbMove) {
-    int x;
-    bool isRed;
-    long long acc = 0;
-    clock_t time_req = clock();
-
-    if (isJ1) {
-        cout << "IA J1 Turn:" << endl;
-    } else {
-        cout << "IA J2 Turn:" << endl;
-    }
-
-    //depthMax = evaluateDepth(board, isJ1, depthMax);
-    cout << "Depth: " << depthMax << endl;
-
-    x = negamaxStart(board, true, 0, depthMax, &acc, isJ1);
+    x = minmax_alphaBetaStart(board, true, 0, depthMax, &acc, isJ1);
 
     cout << "Number of nodes: " << acc << endl;
     cout << "Time to respond: " << (float) (clock() - time_req) / CLOCKS_PER_SEC << endl;
@@ -151,11 +119,8 @@ pair<int, bool> getIAMoveThread(Board board, bool isJ1, int depthMax, int *winNb
 void gameLoop(Board board) {
     int nbTour = 0;
 
-    int winNbMoveJ1 = 20;
-    int winNbMoveJ2 = 20;
 
-
-    while (!board.isEnd(true, board.getIsJ1Turn())) {
+    while (!board.isEnd(board.getIsJ1Turn())) {
         int x;
         bool isRed;
         bool validMove;
@@ -166,11 +131,12 @@ void gameLoop(Board board) {
         board.printCases();
         if (board.getIsJ1Turn()) {
 //            pair<int, bool> res = getPlayerMove(true);
-            pair<int, bool> res = getIAMoveThread(board, true, 7, &winNbMoveJ1);
+            pair<int, bool> res = getIAMoveThread(board, true, 2);
             x = res.first;
             isRed = res.second;
         } else {
-            pair<int, bool> res = getIAMove(board, false, 5, &winNbMoveJ2);
+//            pair<int, bool> res = getPlayerMove(true);
+            pair<int, bool> res = getIAMoveThread(board, false, 7);
             x = res.first;
             isRed = res.second;
         }
@@ -192,39 +158,8 @@ void gameLoop(Board board) {
     winner(board);
 }
 
-
-void ThreadFunction( int x, int *res)
-{
-    *res = x;
-}
-
-void test() {
-    array<thread, 2> threads;
-    array<int*, 2> resPtr{};
-    for (int i = 0; i < 2; i++) {
-        resPtr[i] = (int*) malloc(sizeof (int));
-    }
-
-
-    for( int i = 0; i < 2; ++i )
-    {
-        threads[i] = thread( [=] { ThreadFunction(i, resPtr[i]); } );
-    }
-
-    for( int i = 0; i < 2; ++i ) {
-        threads[i].join();
-    }
-
-    cout << *resPtr[0] << endl;
-    cout << *resPtr[1] << endl;
-    delete resPtr[0];
-    delete resPtr[1];
-
-}
-
 int main() {
     Board board = Board();
     gameLoop(board);
-//    test();
     return EXIT_SUCCESS;
 }

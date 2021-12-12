@@ -155,12 +155,12 @@ bool Board::play(int move, bool isRed) {
     return true;
 }
 
-bool Board::isEnd(bool AIPlaying, bool isJ1) const {
+bool Board::isEnd(bool isJ1) const {
     return ((J1Pieces > 32 || J2Pieces > 32)
             || (J1Pieces == 32 && J2Pieces == 32)
             || (nbSeeds < 8)
-            || (AIPlaying && isJ1 && nbJ1Seeds == 0)
-            || (AIPlaying && !isJ1 && nbJ2Seeds == 0));
+            || (isJ1 && nbJ1Seeds == 0)
+            || (!isJ1 && nbJ2Seeds == 0));
 }
 
 
@@ -212,7 +212,7 @@ void Board::addPieces(int pieces) {
 }
 
 
-int Board::evaluate(bool isJ1, bool AIPlaying) const {
+int Board::evaluate(bool isJ1, bool AIPlaying, int depth, int depthMax) const {
 
     int x;
 
@@ -234,6 +234,7 @@ int Board::evaluate(bool isJ1, bool AIPlaying) const {
         } else {
             x = J1Pieces - J2Pieces;
         }
+        x += (nbJ1Seeds - nbJ2Seeds) / 10;
     }
     else {
         if (!AIPlaying && nbJ1Seeds <= 0) { // Si on est joueur 2 et qu'on évalue notre propre coup
@@ -253,7 +254,9 @@ int Board::evaluate(bool isJ1, bool AIPlaying) const {
         } else {
             x = J2Pieces - J1Pieces;
         }
+        x += (nbJ2Seeds - nbJ1Seeds) / 10;
     }
+    x += depthMax - depth;
     return x;
 }
 

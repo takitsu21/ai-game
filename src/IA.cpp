@@ -6,11 +6,11 @@
 
 #include "IA.h"
 
-void printTab(int *tab) {
+void printTab(array<int*, TAB_VALUES_SIZE> tab) {
     for (int i = 0; i < TAB_VALUES_SIZE; i++) {
-        printf(" [%d] ", tab[i]);
+        printf("[%d] ", *tab[i]);
     }
-    printf("\n\n\n------------------------------------\n\n\n");
+    printf("\n------------------------------------\n");
 }
 
 int maxFromArray(const int *tabValues) {
@@ -94,110 +94,15 @@ int maxFromArrayPtr(array<int*, TAB_VALUES_SIZE> tabValues) {
     }
 }
 
-int minFromArrayPtr(array<int*, TAB_VALUES_SIZE> tabValues) {
-    int minBlue = 100;
-    int idxBlue = 0;
-    int minRed = 100;
-    int idxRed = 0;
-
-    for (int i = 0; i < SIZE; i++) { // MIN RED
-        if (*tabValues[i] < minRed) {
-            minRed = *tabValues[i];
-            idxRed = i;
-        }
-    }
-
-    for (int i = SIZE; i < TAB_VALUES_SIZE; i++) { // MIN BLUE
-        if (*tabValues[i] < minBlue) {
-            minBlue = *tabValues[i];
-            idxBlue = i;
-        }
-    }
-
-    if (minRed < minBlue) {
-        return idxRed;
-    } else {
-        return idxBlue;
-    }
-}
-
-void negMaxThread(Board currentBoard, bool AIPlaying, int depth, int depthMax, long long *acc, bool isJ1, int *res) {
-    int score = negamax(currentBoard, AIPlaying, depth, depthMax, acc, isJ1, false);
-    *res = score;
-}
-
-int negamaxStart(Board &currentBoard, bool AIPlaying, int depth, int depthMax, long long *acc, bool isJ1) {
-    *acc = *acc + 1;
-
-    if (currentBoard.isEnd(AIPlaying, isJ1) || depth == depthMax) {
-        int score = currentBoard.evaluate(isJ1, AIPlaying);
-        return score;
-    }
-
-    array<thread, TAB_VALUES_SIZE> threads;
-    array<int*, TAB_VALUES_SIZE> tabValues{};
-    for (int i = 0; i < TAB_VALUES_SIZE; i++) {
-        tabValues[i] = (int *) malloc(sizeof(int));
-        if (AIPlaying) {
-            *tabValues[i] = -100;
-        }
-        else {
-            *tabValues[i] = 100;
-        }
-    }
-
-    for (int i = 0; i < SIZE; i++) {
-        for (int colorJ = 0; colorJ < 2; colorJ++) {
-
-            Board nextBoard = currentBoard.copy();
-            bool isRed = colorJ == 0;
-
-            if (nextBoard.checkValidMove(i, isRed)) {
-                if (nextBoard.play(i, isRed)) {
-                    nextBoard.nextPlayer();
-                }
-
-                if (isRed) {
-                    threads[i] = thread( [=] {
-                        negMaxThread(nextBoard, !AIPlaying, depth + 1, depthMax, acc, isJ1,  tabValues[i]);
-                    });
-                }
-                else {
-                    threads[i+SIZE] = thread( [=] {
-                        negMaxThread(nextBoard, !AIPlaying, depth + 1, depthMax, acc, isJ1,  tabValues[i+SIZE]);
-                    });
-                }
-            }
-        }
-    }
-
-    for (int i = 0; i < TAB_VALUES_SIZE; i++) {
-        if (threads[i].joinable()) {
-            threads[i].join();
-        }
-    }
-
-    int res;
-    if (AIPlaying) {
-        res = maxFromArrayPtr(tabValues);
-    } else {
-        res = minFromArrayPtr(tabValues);
-    }
-
-    for (int i = 0; i < TAB_VALUES_SIZE; i++) {
-        delete tabValues[i];
-    }
-    return res;
-}
-
-int negamax(Board &currentBoard, bool AIPlaying, int depth, int depthMax, long long *acc, bool isJ1, bool firstCall) {
+int minmax_alphaBeta(Board &currentBoard, bool AIPlaying, int depth, int depthMax, long long *acc, bool isJ1) {
 
     *acc = *acc + 1;
 
-    if (currentBoard.isEnd(AIPlaying, isJ1) || depth == depthMax) {
-        int score = currentBoard.evaluate(isJ1, AIPlaying);
+    if (currentBoard.isEnd(isJ1) || depth == depthMax) {
+        int score = currentBoard.evaluate(isJ1, AIPlaying, depth, depthMax);
         return score;
     }
+
     int tabValues[TAB_VALUES_SIZE] = {
             -100, -100, -100, -100,
             -100, -100, -100, -100,
@@ -228,7 +133,7 @@ int negamax(Board &currentBoard, bool AIPlaying, int depth, int depthMax, long l
                 }
 
 
-                bestMove = negamax(nextBoard, !AIPlaying, depth + 1, depthMax, acc, isJ1, false);
+                bestMove = minmax_alphaBeta(nextBoard, !AIPlaying, depth + 1, depthMax, acc, isJ1);
 
                 if (isRed) { // if red
                     tabValues[i] = bestMove;
@@ -240,21 +145,70 @@ int negamax(Board &currentBoard, bool AIPlaying, int depth, int depthMax, long l
     }
 
     int res;
-    if (firstCall) {
-        if (AIPlaying) {
-            res = maxFromArray(tabValues);
-        } else {
-            res = minFromArray(tabValues);
-        }
-        printTab(tabValues);
+
+    int idx;
+    if (AIPlaying) {
+        idx = maxFromArray(tabValues);
     } else {
-        int idx;
-        if (AIPlaying) {
-            idx = maxFromArray(tabValues);
-        } else {
-            idx = minFromArray(tabValues);
+        idx = minFromArray(tabValues);
+    }
+    res = tabValues[idx];
+
+    return res;
+}
+
+void minmax_alphaBetaThread(Board currentBoard, bool AIPlaying, int depth, int depthMax, long long *acc, bool isJ1, int *res) {
+    int score = minmax_alphaBeta(currentBoard, AIPlaying, depth, depthMax, acc, isJ1);
+    *res = score;
+}
+
+int minmax_alphaBetaStart(Board &currentBoard, bool AIPlaying, int depth, int depthMax, long long *acc, bool isJ1) {
+    *acc = *acc + 1;
+
+    array<thread, TAB_VALUES_SIZE> threads;
+    array<int*, TAB_VALUES_SIZE> tabValues{};
+    for (int i = 0; i < TAB_VALUES_SIZE; i++) {
+        tabValues[i] = (int *) malloc(sizeof(int));
+        *tabValues[i] = -100;
+    }
+
+    for (int i = 0; i < SIZE; i++) {
+        for (int colorJ = 0; colorJ < 2; colorJ++) {
+
+            Board nextBoard = currentBoard.copy();
+            bool isRed = colorJ == 0;
+
+            if (nextBoard.checkValidMove(i, isRed)) {
+                if (nextBoard.play(i, isRed)) {
+                    nextBoard.nextPlayer();
+                }
+
+                if (isRed) {
+                    threads[i] = thread( [=] {
+                        minmax_alphaBetaThread(nextBoard, !AIPlaying, depth + 1, depthMax, acc, isJ1, tabValues[i]);
+                    });
+                }
+                else {
+                    threads[i+SIZE] = thread( [=] {
+                        minmax_alphaBetaThread(nextBoard, !AIPlaying, depth + 1, depthMax, acc, isJ1,
+                                               tabValues[i + SIZE]);
+                    });
+                }
+            }
         }
-        res = tabValues[idx];
+    }
+
+    for (int i = 0; i < TAB_VALUES_SIZE; i++) {
+        if (threads[i].joinable()) {
+            threads[i].join();
+        }
+    }
+
+    int res;
+    res = maxFromArrayPtr(tabValues);
+
+    for (int i = 0; i < TAB_VALUES_SIZE; i++) {
+        delete tabValues[i];
     }
     return res;
 }
