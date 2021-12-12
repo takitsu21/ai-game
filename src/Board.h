@@ -2,7 +2,6 @@
 
 #include <iostream>
 
-
 #pragma once
 #define SIZE 16
 #define MAX_SEEDS 64
@@ -25,7 +24,7 @@ private:
 
 public:
     Board();
-    Board(bool test);
+    explicit Board(bool test);
     Board(const Board& board);
 
     ~Board();
