@@ -3,7 +3,8 @@
 
 #include <iostream>
 #include "src/Board.h"
-#include "src/IA.h"
+#include "src/AbstractIA.h"
+#include "src/BaseIA.h"
 #include <ctime>
 #include <string>
 #include <thread>
@@ -84,7 +85,7 @@ pair<int, bool> getPlayerMove(bool isJ1) {
     return parse(s);
 }
 
-pair<int, bool> getIAMoveThread(Board board, bool isJ1, int depthMax) {
+pair<int, bool> getIAMove(AbstractIA *IA, Board board, bool isJ1, int depthMax) {
     int x;
     bool isRed;
     long long acc = 0;
@@ -96,10 +97,10 @@ pair<int, bool> getIAMoveThread(Board board, bool isJ1, int depthMax) {
         cout << "IA J2 Turn:" << endl;
     }
 
-    //depthMax = evaluateDepth(board, isJ1, depthMax);
+    //depthMax = IA->evaluateDepth(board, isJ1, depthMax);
     cout << "Depth: " << depthMax << endl;
 
-    x = minmax_alphaBetaStart(board, true, 0, depthMax, &acc, isJ1);
+    x = IA->start(board, true, 0, depthMax, &acc, isJ1);
 
     cout << "Number of nodes: " << acc << endl;
     cout << "Time to respond: " << (float) (clock() - time_req) / CLOCKS_PER_SEC << endl;
@@ -125,22 +126,24 @@ void gameLoop(Board board) {
         bool isRed;
         bool validMove;
 
+        AbstractIA *IA_J1 = new BaseIA();
+        AbstractIA *IA_J2 = new BaseIA();
+
         cout << "\n\n";
         cout << "############################################################################" << endl;
         cout << "Tour: " << nbTour << endl;
         board.printCases();
         if (board.getIsJ1Turn()) {
 //            pair<int, bool> res = getPlayerMove(true);
-            pair<int, bool> res = getIAMoveThread(board, true, 2);
+            pair<int, bool> res = getIAMove(IA_J1, board, true, 6);
             x = res.first;
             isRed = res.second;
         } else {
 //            pair<int, bool> res = getPlayerMove(true);
-            pair<int, bool> res = getIAMoveThread(board, false, 7);
+            pair<int, bool> res = getIAMove(IA_J2, board, false, 7);
             x = res.first;
             isRed = res.second;
         }
-
 
         if (x == -1) {
             cout << "Coup invalide !" << endl;
