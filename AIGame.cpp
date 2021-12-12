@@ -6,6 +6,7 @@
 #include "src/IA.h"
 #include <ctime>
 #include <string>
+#include <thread>
 #include <array>
 
 
@@ -83,7 +84,7 @@ pair<int, bool> getPlayerMove(bool isJ1) {
     return parse(s);
 }
 
-pair<int, bool> getIAMove(Board board, bool isJ1, int depthMax, int *winNbMove) {
+pair<int, bool> getIAMoveThread(Board board, bool isJ1, int depthMax) {
     int x;
     bool isRed;
     long long acc = 0;
@@ -94,11 +95,11 @@ pair<int, bool> getIAMove(Board board, bool isJ1, int depthMax, int *winNbMove) 
     } else {
         cout << "IA J2 Turn:" << endl;
     }
-//    long long nodeMax = pow(16, depthMax) + 17;
-//    depthMax = evaluateDepth(board, isJ1, depthMax);
+
+    //depthMax = evaluateDepth(board, isJ1, depthMax);
     cout << "Depth: " << depthMax << endl;
 
-    x = negamax(board, true, 0, depthMax, &acc, isJ1, true, -100, 100, NULL);
+    x = minmax_alphaBetaStart(board, true, 0, depthMax, &acc, isJ1);
 
     cout << "Number of nodes: " << acc << endl;
     cout << "Time to respond: " << (float) (clock() - time_req) / CLOCKS_PER_SEC << endl;
@@ -115,75 +116,31 @@ pair<int, bool> getIAMove(Board board, bool isJ1, int depthMax, int *winNbMove) 
     return make_pair(x, isRed);
 }
 
-pair<int, bool> getIAMoveThread(Board board, bool isJ1, int depthMax, int *winNbMove, int nbTour, clock_t clock) {
-    int x;
-    bool isRed;
-    long long acc = 0;
-
-    if (isJ1) {
-        cout << "IA J1 Turn:" << endl;
-    } else {
-        cout << "IA J2 Turn:" << endl;
-    }
-
-    depthMax = evaluateDepth(board, isJ1, depthMax, nbTour);
-    cout << "Depth: " << depthMax << endl;
-
-    x = negamaxStart(board, true, 0, depthMax, &acc, isJ1, clock);
-
-    cout << "Number of nodes: " << acc << endl;
-
-    if (x < SIZE) {
-        isRed = true;
-        cout << "Move: " << x + 1 << "R" << endl;
-    } else {
-        isRed = false;
-        x -= SIZE;
-        cout << "Move: " << x + 1 << "B" << endl;
-    }
-
-    return make_pair(x, isRed);
-}
-
 void gameLoop(Board board) {
     int nbTour = 0;
 
-    int winNbMoveJ1 = 20;
-    int winNbMoveJ2 = 20;
-    int J1IA = true;
-    int J2IA = true;
 
-    while (!board.isEnd(true, board.getIsJ1Turn())) {
+    while (!board.isEnd(board.getIsJ1Turn())) {
         int x;
         bool isRed;
         bool validMove;
-        pair<int, bool> res;
 
         cout << "\n\n";
         cout << "############################################################################" << endl;
         cout << "Tour: " << nbTour << endl;
         board.printCases();
         if (board.getIsJ1Turn()) {
-            if (!J1IA) {
-                res = getPlayerMove(true);
-            } else {
-                clock_t time_req = clock();
-                res = getIAMoveThread(board, true, 8, &winNbMoveJ1, nbTour, time_req);
-                cout << "Time to respond: " << (float) (clock() - time_req) / CLOCKS_PER_SEC << endl;
-            }
+//            pair<int, bool> res = getPlayerMove(true);
+            pair<int, bool> res = getIAMoveThread(board, true, 2);
             x = res.first;
             isRed = res.second;
         } else {
-            if (!J2IA) {
-                res = getPlayerMove(false);
-            } else {
-                clock_t time_req = clock();
-                res = getIAMoveThread(board, false, 8, &winNbMoveJ2, nbTour, time_req);
-                cout << "Time to respond: " << (float) (clock() - time_req) / CLOCKS_PER_SEC << endl;
-            }
+//            pair<int, bool> res = getPlayerMove(true);
+            pair<int, bool> res = getIAMoveThread(board, false, 7);
             x = res.first;
             isRed = res.second;
         }
+
 
         if (x == -1) {
             cout << "Coup invalide !" << endl;
