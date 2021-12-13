@@ -4,12 +4,13 @@
 
 #include "QuiesceIA.h"
 
+
 int QuiesceIA::minmax_alphaBeta(Board &currentBoard, bool AIPlaying, int depth, int depthMax, long long *acc,
                                 bool isJ1, int alpha, int beta) {
 
 
     if (currentBoard.isEnd(isJ1)) {
-        int score = currentBoard.evaluate(isJ1, AIPlaying, depth, depthMax);
+        int score = evaluate(currentBoard, isJ1, AIPlaying, depth, depthMax);
         return score;
     }
     if (depth == depthMax) {
@@ -66,4 +67,26 @@ int QuiesceIA::minmax_alphaBeta(Board &currentBoard, bool AIPlaying, int depth, 
         }
     }
     return bestMove;
+}
+
+
+int QuiesceIA::quiesce(Board board, int alpha, int beta, bool AIPlaying, bool isJ1, int depth, int depthMax) {
+    int standPat = evaluate(board, isJ1, AIPlaying, depth, depthMax);
+//    printf("quiesce\n");
+
+    for (int i = 0; i < SIZE; i++) {
+        for (int color = 0; color < 2; color++) {
+            bool isRed = color == 0;
+            if (board.checkValidMove(i, isRed)) {
+                Board nextBoard = board.copy();
+                nextBoard.play(i, isRed);
+                nextBoard.nextPlayer();
+
+
+                standPat = max(standPat, -quiesce(nextBoard, -beta, -alpha, !AIPlaying, isJ1, depth, depthMax));
+
+            }
+        }
+    }
+    return standPat;
 }
