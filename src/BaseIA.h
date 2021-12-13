@@ -9,10 +9,10 @@
 
 class BaseIA : public AbstractIA {
 public:
-    BaseIA() = default;
-    ~BaseIA() override = default;
+    BaseIA();
+    ~BaseIA();
     int start(Board &currentBoard, bool AIPlaying, int depth, int depthMax,
-              long long int *acc, bool isJ1) override;
+              long long int *acc, bool isJ1) override ;
     int evaluate(Board board, bool isJ1, bool AIPlaying, int depth, int depthMax) override;
 
 private:
