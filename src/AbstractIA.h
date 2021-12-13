@@ -10,22 +10,22 @@
 
 class AbstractIA {
 public:
-    AbstractIA();
-    ~AbstractIA();
+    AbstractIA() = default;
+    ~AbstractIA() = default;
 
     virtual int start(Board &currentBoard, bool AIPlaying, int depth, int depthMax,
-                      long long *acc, bool isJ1);
+                      long long *acc, bool isJ1) = 0;
 
-    virtual int evaluateDepth(Board board, bool isJ1, int depthMax);
+    virtual int evaluateDepth(Board board, bool isJ1, int depthMax) = 0;
 
 
     virtual void minmax_alphaBetaThread(Board currentBoard, bool AIPlaying, int depth, int depthMax,
-                                        long long *acc, bool isJ1, int *res);
+                                        long long *acc, bool isJ1, int *res) = 0;
 
     virtual int minmax_alphaBeta(Board &currentBoard, bool AIPlaying, int depth, int depthMax,
-                                 long long *acc, bool isJ1, int alpha,int beta);
+                                 long long *acc, bool isJ1, int alpha,int beta) = 0;
 
-    virtual int evaluate(Board board, bool isJ1, bool AIPlaying, int depth, int depthMax);
+    virtual int evaluate(Board board, bool isJ1, bool AIPlaying, int depth, int depthMax) = 0;
 };
 
 
