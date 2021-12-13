@@ -10,6 +10,7 @@
 #include <thread>
 #include <array>
 #include "src/QuiesceIA.h"
+#include "src/DylIA.h"
 
 void winner(const Board &board) {
 
@@ -145,8 +146,10 @@ void gameLoop(Board board) {
         bool isRed;
         pair<int, bool> res;
 
-        AbstractIA *IA_J1 = new QuiesceIA();
-        AbstractIA *IA_J2 = new BaseIA();
+        AbstractIA *IA_J1 = new BaseIA();
+        AbstractIA *IA_J2 = new DylIA();
+//        AbstractIA *IA_J1 = new QuiesceIA();
+//        AbstractIA *IA_J2 = new BaseIA();
 
         cout << "\n\n";
         cout << "############################################################################" << endl;
@@ -156,13 +159,13 @@ void gameLoop(Board board) {
             if (humanPlayer1 == 1) {
                 res = getPlayerMove(true);
             } else {
-                res = getIAMove(IA_J1, board, true, 8);
+                res = getIAMove(IA_J1, board, true, 5);
             }
         } else {
             if (humanPlayer2 == 2) {
                 res = getPlayerMove(false);
             } else {
-                res = getIAMove(IA_J2, board, false, 8);
+                res = getIAMove(IA_J2, board, false, 5);
             }
 
         }

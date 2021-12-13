@@ -10,6 +10,10 @@ Board::Board() {
     nbJ1Seeds = 32;
     nbJ2Seeds = 32;
     nbSeeds = MAX_SEEDS;
+    nbJ1RedSeeds = 0;
+    nbJ2RedSeeds = 0;
+    nbJ1BlueSeeds = 0;
+    nbJ2BlueSeeds = 0;
     isJ1Turn = true;
     J2Pieces = 0;
     J1Pieces = 0;
@@ -29,6 +33,10 @@ Board::Board(const Board &obj) {
     isJ1Turn = obj.isJ1Turn;
     J2Pieces = obj.J2Pieces;
     J1Pieces = obj.J1Pieces;
+    nbJ1RedSeeds = obj.nbJ1RedSeeds;
+    nbJ2RedSeeds = obj.nbJ2RedSeeds;
+    nbJ1BlueSeeds = obj.nbJ1BlueSeeds;
+    nbJ2BlueSeeds = obj.nbJ2BlueSeeds;
 }
 
 Board Board::copy() {
@@ -44,6 +52,10 @@ Board Board::copy() {
     b.isJ1Turn = isJ1Turn;
     b.J2Pieces = J2Pieces;
     b.J1Pieces = J1Pieces;
+    b.nbJ1RedSeeds = nbJ1RedSeeds;
+    b.nbJ2RedSeeds = nbJ2RedSeeds;
+    b.nbJ1BlueSeeds = nbJ1BlueSeeds;
+    b.nbJ2BlueSeeds = nbJ2BlueSeeds;
 
     return b;
 }
@@ -141,11 +153,20 @@ void Board::play(int move, bool isRed) {
     eatSeeds(index);
     nbJ1Seeds = 0;
     nbJ2Seeds = 0;
+    nbJ1RedSeeds = 0;
+    nbJ2RedSeeds = 0;
+    nbJ1BlueSeeds = 0;
+    nbJ2BlueSeeds = 0;
     for (int i = 0; i < SIZE; i++) {
         if (isJ1Case[i]) {
             nbJ1Seeds += blueCase[i] + redCase[i];
+            nbJ1RedSeeds += redCase[i];
+            nbJ1BlueSeeds += blueCase[i];
+
         } else {
             nbJ2Seeds += blueCase[i] + redCase[i];
+            nbJ2RedSeeds += redCase[i];
+            nbJ2BlueSeeds += blueCase[i];
         }
     }
 }
