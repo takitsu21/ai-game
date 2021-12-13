@@ -156,7 +156,7 @@ void gameLoop(Board board) {
             if (humanPlayer1 == 1) {
                 res = getPlayerMove(true);
             } else {
-                res = getIAMove(IA_J1, board, true, 9);
+                res = getIAMove(IA_J1, board, true, 8);
             }
         } else {
             if (humanPlayer2 == 2) {

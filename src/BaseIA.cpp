@@ -3,7 +3,7 @@
 //
 
 #include "BaseIA.h"
-
+#include "IA.h"
 
 int BaseIA::evaluate(Board board, bool isJ1, bool AIPlaying, int depth, int depthMax) {
     int x;
@@ -85,9 +85,14 @@ int BaseIA::minmax_alphaBeta(Board &currentBoard, bool AIPlaying, int depth, int
 
     *acc = *acc + 1;
 
-    if (currentBoard.isEnd(isJ1) || depth == depthMax) {
+
+
+    if (currentBoard.isEnd(isJ1)) {
         int score = currentBoard.evaluate(isJ1, AIPlaying, depth, depthMax);
         return score;
+    }
+    if (depth == depthMax) {
+        return quiesce(currentBoard, alpha, beta, AIPlaying, isJ1, depthMax, depthMax + 1);
     }
 
     int bestMove;
