@@ -1,13 +1,16 @@
 //
+// Created by Dylann on 13/12/2021.
+//
+
+//
 // Created by antoi on 12/12/2021.
 //
 
-#include "BaseIA.h"
+#include "AbstractIA.h"
 
 
-int BaseIA::evaluate(Board board, bool isJ1, bool AIPlaying, int depth, int depthMax) {
+int AbstractIA::evaluate(Board board, bool isJ1, bool AIPlaying, int depth, int depthMax) {
     int x;
-
     int nbJ2Seeds = board.getNbJ2Seeds();
     int nbJ1Seeds = board.getNbJ1Seeds();
     int J2Pieces = board.getNbJ2Pieces();
@@ -57,7 +60,7 @@ int BaseIA::evaluate(Board board, bool isJ1, bool AIPlaying, int depth, int dept
     return x;
 }
 
-int BaseIA::evaluateDepth(Board board, bool isJ1, int depthMax) {
+int AbstractIA::evaluateDepth(Board board, bool isJ1, int depthMax) {
     int nbMoves = 0;
     int depth;
     for (int i = 0; i < SIZE; i++) {
@@ -85,7 +88,7 @@ int BaseIA::evaluateDepth(Board board, bool isJ1, int depthMax) {
     return depth;
 }
 
-int BaseIA::minmax_alphaBeta(Board &currentBoard, bool AIPlaying, int depth, int depthMax, long long *acc, bool isJ1,
+int AbstractIA::minmax_alphaBeta(Board &currentBoard, bool AIPlaying, int depth, int depthMax, long long *acc, bool isJ1,
                              int alpha, int beta) {
 
     *acc = *acc + 1;
@@ -147,7 +150,7 @@ int BaseIA::minmax_alphaBeta(Board &currentBoard, bool AIPlaying, int depth, int
 }
 
 void
-BaseIA::minmax_alphaBetaThread(Board currentBoard, bool AIPlaying, int depth, int depthMax, long long *acc, bool isJ1,
+AbstractIA::minmax_alphaBetaThread(Board currentBoard, bool AIPlaying, int depth, int depthMax, long long *acc, bool isJ1,
                                int *res) {
     long long acc2 = 0;
     int score = minmax_alphaBeta(currentBoard, AIPlaying, depth, depthMax, &acc2, isJ1, -100, 100);
@@ -155,7 +158,7 @@ BaseIA::minmax_alphaBetaThread(Board currentBoard, bool AIPlaying, int depth, in
     *res = score;
 }
 
-int BaseIA::start(Board &currentBoard, bool AIPlaying, int depth, int depthMax, long long *acc, bool isJ1) {
+int AbstractIA::start(Board &currentBoard, bool AIPlaying, int depth, int depthMax, long long *acc, bool isJ1) {
     *acc = *acc + 1;
 
     array<thread, TAB_VALUES_SIZE> threads;
@@ -204,10 +207,10 @@ int BaseIA::start(Board &currentBoard, bool AIPlaying, int depth, int depthMax, 
     return res;
 }
 
-BaseIA::BaseIA() {
+AbstractIA::~AbstractIA() {
 
 }
 
-BaseIA::~BaseIA() {
+AbstractIA::AbstractIA() {
 
 }
