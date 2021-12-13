@@ -18,6 +18,6 @@ add_executable(ai_game
         src/Board.cpp
         src/Board.h
         src/IA.cpp
-        src/IA.h src/BaseIA.cpp src/AbstractIA.h src/BaseIA.h)
+        src/IA.h src/BaseIA.cpp src/AbstractIA.h src/BaseIA.h src/AntIA1.cpp src/AntIA1.h)
 
 target_link_libraries(ai_game Threads::Threads)

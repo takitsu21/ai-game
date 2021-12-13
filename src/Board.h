@@ -21,8 +21,13 @@ private:
     int nbSeeds;
     int nbJ1Seeds;
     int nbJ2Seeds;
-
 public:
+
+    int nbJ1RedSeeds;
+    int nbJ2RedSeeds;
+    int nbJ1BlueSeeds;
+    int nbJ2BlueSeeds;
+
     Board();
     explicit Board(bool test);
     Board(const Board& board);
