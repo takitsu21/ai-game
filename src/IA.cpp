@@ -23,10 +23,10 @@ int quiesce(Board board, int alpha, int beta, bool AIPlaying, bool isJ1, int dep
     if (alpha < standPat) {
         alpha = standPat;
     }
-    if (depth == depthMax) {
-        return alpha;
+    if (depthMax == depth) {
+        return (AIPlaying ? 1 : -1) * standPat;
     }
-
+    int score;
     for (int i = 0; i < SIZE; i++) {
         for (int color = 0; color < 2; color++) {
             bool isRed = color == 0;
@@ -36,7 +36,7 @@ int quiesce(Board board, int alpha, int beta, bool AIPlaying, bool isJ1, int dep
                 nextBoard.nextPlayer();
 
 
-                int score = -quiesce(nextBoard, -beta, -alpha, !AIPlaying, isJ1, depth + 1, depthMax);
+                score = -quiesce(nextBoard, -beta, -alpha, !AIPlaying, isJ1, depth + 1, depthMax);
                 if (score >= beta) {
                     return beta;
                 }
