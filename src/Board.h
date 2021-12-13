@@ -40,8 +40,6 @@ public:
 
     void addPieces(int pieces);
 
-    int evaluate(bool isJ1, bool AIPlaying, int depth, int depthMax) const;
-
     void play(int move, bool isRed);
 
     bool isEnd(bool isJ1) const;

@@ -9,7 +9,7 @@
 #include <string>
 #include <thread>
 #include <array>
-#include "src/DylIA.h"
+#include "src/AntIA1.h"
 
 void winner(const Board &board) {
 
@@ -57,7 +57,7 @@ string inputPlayer(bool isJ1) {
 
 pair<int, bool> parse(string s) {
     char color = s.back();
-    int x;
+    int x = 0;
     bool isRed;
     if (color == 'B' || color == 'b') {
         isRed = false;
@@ -146,7 +146,7 @@ void gameLoop(Board board) {
         pair<int, bool> res;
 
         AbstractIA *IA_J1 = new BaseIA();
-        AbstractIA *IA_J2 = new DylIA();
+        AbstractIA *IA_J2 = new AntIA1();
 
         cout << "\n\n";
         cout << "############################################################################" << endl;
