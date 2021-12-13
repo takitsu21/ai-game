@@ -16,7 +16,7 @@ public:
                       long long *acc, bool isJ1) = 0;
     virtual int evaluateDepth(Board board, bool isJ1, int depthMax) = 0;
 
-private:
+
 
 
     virtual void minmax_alphaBetaThread(Board currentBoard, bool AIPlaying, int depth, int depthMax,

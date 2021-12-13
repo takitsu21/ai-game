@@ -9,7 +9,7 @@
 #include <string>
 #include <thread>
 #include <array>
-
+#include "src/QuiesceIA.h"
 
 void winner(const Board &board) {
 
@@ -145,7 +145,7 @@ void gameLoop(Board board) {
         bool isRed;
         pair<int, bool> res;
 
-        AbstractIA *IA_J1 = new BaseIA();
+        AbstractIA *IA_J1 = new QuiesceIA();
         AbstractIA *IA_J2 = new BaseIA();
 
         cout << "\n\n";
@@ -162,7 +162,7 @@ void gameLoop(Board board) {
             if (humanPlayer2 == 2) {
                 res = getPlayerMove(false);
             } else {
-                res = getIAMove(IA_J2, board, false, 9);
+                res = getIAMove(IA_J2, board, false, 8);
             }
 
         }

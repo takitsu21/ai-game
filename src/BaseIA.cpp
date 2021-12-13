@@ -87,13 +87,13 @@ int BaseIA::minmax_alphaBeta(Board &currentBoard, bool AIPlaying, int depth, int
 
 
 
-    if (currentBoard.isEnd(isJ1)) {
+    if (currentBoard.isEnd(isJ1) || depthMax == depth) {
         int score = currentBoard.evaluate(isJ1, AIPlaying, depth, depthMax);
         return score;
     }
-    if (depth == depthMax) {
-        return quiesce(currentBoard, alpha, beta, AIPlaying, isJ1, depthMax, depthMax + 1);
-    }
+//    if (depth == depthMax) {
+//        return quiesce(currentBoard, alpha, beta, AIPlaying, isJ1, depthMax, depthMax + 1);
+//    }
 
     int bestMove;
     if (AIPlaying) {
