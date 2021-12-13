@@ -14,32 +14,6 @@ void printTab(array<int*, TAB_VALUES_SIZE> tab) {
     printf("\n------------------------------------\n");
 }
 
-int maxFromArray(const int *tabValues) {
-    int maxBlue = -100;
-    int idxBlue = 0;
-    int maxRed = -100;
-    int idxRed = 0;
-
-    for (int i = 0; i < SIZE; i++) { // MAX RED
-        if (tabValues[i] > maxRed) {
-            maxRed = tabValues[i];
-            idxRed = i;
-        }
-    }
-
-    for (int i = SIZE; i < TAB_VALUES_SIZE; i++) { // MAX BLUE
-        if (tabValues[i] > maxBlue) {
-            maxBlue = tabValues[i];
-            idxBlue = i;
-        }
-    }
-
-    if (maxBlue > maxRed) {
-        return idxBlue;
-    } else {
-        return idxRed;
-    }
-}
 
 int maxFromArrayPtr(array<int*, TAB_VALUES_SIZE> tabValues) {
     int maxBlue = -100;

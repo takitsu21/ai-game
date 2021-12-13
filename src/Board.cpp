@@ -83,13 +83,9 @@ bool Board::getIsJ1Turn() const {
 }
 
 
-bool Board::play(int move, bool isRed) {
+void Board::play(int move, bool isRed) {
     int seeds;
 
-    if (!checkValidMove(move, isRed)) {
-        printf("Coup invalide !\n");
-        return false;
-    }
     if (isRed) {
         seeds = redCase[move];
         redCase[move] = 0;
@@ -152,7 +148,6 @@ bool Board::play(int move, bool isRed) {
             nbJ2Seeds += blueCase[i] + redCase[i];
         }
     }
-    return true;
 }
 
 bool Board::isEnd(bool isJ1) const {

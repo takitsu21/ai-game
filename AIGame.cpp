@@ -97,7 +97,7 @@ pair<int, bool> getIAMove(AbstractIA *IA, Board board, bool isJ1, int depthMax) 
         cout << "IA J2 Turn:" << endl;
     }
 
-    //depthMax = IA->evaluateDepth(board, isJ1, depthMax);
+    depthMax = IA->evaluateDepth(board, isJ1, depthMax);
     cout << "Depth: " << depthMax << endl;
 
     x = IA->start(board, true, 0, depthMax, &acc, isJ1);
@@ -117,14 +117,33 @@ pair<int, bool> getIAMove(AbstractIA *IA, Board board, bool isJ1, int depthMax) 
     return make_pair(x, isRed);
 }
 
+int isJ1AIChoice() {
+    int x = -2;
+    while (x != -1 && x != 1 && x != 2) {
+        cout << "Which player is the human player ?\n1 - J1\n2 - J2\n-1 - 2 AI\n ";
+        cin >> x;
+    }
+    cin.clear();
+    fflush(stdin);
+    return x;
+}
+
 void gameLoop(Board board) {
     int nbTour = 0;
+    int humanPlayer1 = -1;
+    int humanPlayer2 = -1;
+    int startChoice = isJ1AIChoice();
+    if (startChoice == 1) {
+        humanPlayer1 = 1;
+    } else if (startChoice == 2) {
+        humanPlayer2 = 2;
+    }
 
 
     while (!board.isEnd(board.getIsJ1Turn())) {
         int x;
         bool isRed;
-        bool validMove;
+        pair<int, bool> res;
 
         AbstractIA *IA_J1 = new BaseIA();
         AbstractIA *IA_J2 = new BaseIA();
@@ -134,25 +153,28 @@ void gameLoop(Board board) {
         cout << "Tour: " << nbTour << endl;
         board.printCases();
         if (board.getIsJ1Turn()) {
-//            pair<int, bool> res = getPlayerMove(true);
-            pair<int, bool> res = getIAMove(IA_J1, board, true, 6);
-            x = res.first;
-            isRed = res.second;
+            if (humanPlayer1 == 1) {
+                res = getPlayerMove(true);
+            } else {
+                res = getIAMove(IA_J1, board, true, 9);
+            }
         } else {
-//            pair<int, bool> res = getPlayerMove(true);
-            pair<int, bool> res = getIAMove(IA_J2, board, false, 7);
-            x = res.first;
-            isRed = res.second;
+            if (humanPlayer2 == 2) {
+                res = getPlayerMove(false);
+            } else {
+                res = getIAMove(IA_J2, board, false, 9);
+            }
+
         }
+        x = res.first;
+        isRed = res.second;
 
         if (x == -1) {
             cout << "Coup invalide !" << endl;
             continue;
         }
-        validMove = board.play(x, isRed);
-        if (validMove) {
-            board.nextPlayer();
-        }
+        board.play(x, isRed);
+        board.nextPlayer();
         nbTour++;
     }
     board.printCases(); // etat final du jeu
