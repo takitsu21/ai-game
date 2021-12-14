@@ -13,7 +13,7 @@ include_directories(.)
 
 find_package(Threads REQUIRED)
 
-add_executable(ai_game
+add_executable(
         AIGame.cpp
         src/Board.cpp
         src/Board.h

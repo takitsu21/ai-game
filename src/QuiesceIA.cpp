@@ -7,68 +7,167 @@
 
 
 int QuiesceIA::evaluate(Board board, bool isJ1, bool AIPlaying, int depth, int depthMax) {
-    int x;
 
     int nbJ2Seeds = board.getNbJ2Seeds();
     int nbJ1Seeds = board.getNbJ1Seeds();
     int J2Pieces = board.getNbJ2Pieces();
     int J1Pieces = board.getNbJ1Pieces();
     int nbSeeds = board.getNbSeeds();
-    int nbJ1RedSeeds = board.nbJ1RedSeeds;
-    int nbJ2RedSeeds = board.nbJ2RedSeeds;
-    int nbJ1BlueSeeds = board.nbJ1BlueSeeds;
-    int nbJ2BlueSeeds = board.nbJ2BlueSeeds;
 
     if (isJ1) {
-
-        if (!AIPlaying && nbJ2Seeds <= 0) { // Si on est joueur 1 et qu'on évalue un coup de l'IA
-            x = 64;
-        } else if (AIPlaying && nbJ1Seeds <= 0) { // on évalue le coup de l'adversaire (J2)
+        if (AIPlaying && nbJ2Seeds <= 0) { // on évalue le coup de l'adversaire (J2)
             return -64;
         } else if (J2Pieces > 32) {
             return -64;
-        } else if (J1Pieces > 32) {
-            x = 64;
         } else if (nbSeeds < 8 && J1Pieces < J2Pieces) {
             return -64;
+        } else if (!AIPlaying && nbJ1Seeds <= 0) { // Si on est joueur 2 et qu'on évalue notre propre coup
+            return 64 + depthMax - depth;
         } else if (nbSeeds < 8 && J1Pieces > J2Pieces) {
-            x = 64;
+            return 64 + depthMax - depth;
+        } else if (J1Pieces > 32) {
+            return 64 + depthMax - depth;
         } else {
-            x = J1Pieces - J2Pieces;
-        }
-        x += (nbJ1Seeds - nbJ2Seeds) / 10;
-//        for (int i = 0; i < SIZE; i+=2) {
-//            int seeds = board.getCaseRed()[i] + board.getCaseBlue()[i];
-//            if (seeds == 2 || seeds == 3) {
-//                x += seeds;
+            int x=0;
+
+            if (AIPlaying) {
+                int re = 0;
+                for (int i = 0; i < SIZE; i += 2) {
+                    int red = board.getCaseRed()[i];
+                    int blue = board.getCaseBlue()[i];
+                    int re_red = 0;
+                    int re_blue = 0;
+
+                    if (red > 0) {
+                        int k = (i+red)%SIZE;
+                        int c = board.getCaseRed()[k] + board.getCaseBlue()[k];
+                        if (c == 2 || c == 1) {
+
+                            re_red += c+1;
+                            int j = (k-1)%SIZE;
+                            while (true) {
+                                c = board.getCaseRed()[j] + board.getCaseBlue()[j];
+                                if (c+1 == 3 || c+1 == 2) {
+                                    re_red += c+1;
+                                    j-= 1 % SIZE;
+                                }
+                                else {
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    if (blue > 0) {
+                        int k = (i+blue*2 - 1)%SIZE;
+                        int c = board.getCaseRed()[k] + board.getCaseBlue()[k];
+                        if (c == 2 || c == 1) {
+
+                            re_blue += c+1;
+                            int j = (k-1)%SIZE;
+                            int inc = 0;
+                            while (true) {
+                                c = board.getCaseRed()[j] + board.getCaseBlue()[j];
+                                if (c+inc == 2 || c+inc == 3) {
+                                    re_blue += c+1;
+                                    j-= 1 % SIZE;
+                                    inc -- % 2;
+                                }
+                                else {
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    re = max(max(re_blue, re_red), re);
+                }
+                x += re;
+            }
+            else {
+                int re = 0;
+                for (int i = 1; i < SIZE; i += 2) {
+                    int red = board.getCaseRed()[i];
+                    int blue = board.getCaseBlue()[i];
+                    int re_red = 0;
+                    int re_blue = 0;
+                    if (red > 0) {
+                        int k = (i+red)%SIZE;
+                        int c = board.getCaseRed()[k] + board.getCaseBlue()[k];
+                        if (c == 2 || c == 1) {
+
+                            re_red += c+1;
+                            int j = (k-1)%SIZE;
+                            while (true) {
+                                c = board.getCaseRed()[j] + board.getCaseBlue()[j];
+                                if (c+1 == 3 || c+1 == 2) {
+                                    re_red += c+1;
+                                    j-= 1 % SIZE;
+                                }
+                                else {
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    if (blue > 0) {
+                        int k = (i+blue*2 - 1)%SIZE;
+                        int c = board.getCaseRed()[k] + board.getCaseBlue()[k];
+                        if (c == 2 || c == 1) {
+
+                            re_blue += c+1;
+                            int j = (k-1)%SIZE;
+                            int inc = 0;
+                            while (true) {
+                                c = board.getCaseRed()[j] + board.getCaseBlue()[j];
+                                if (c+inc == 2 || c+inc == 3) {
+                                    re_blue += c+1;
+                                    j-= 1 % SIZE;
+                                    inc -- % 2;
+                                }
+                                else {
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    re = max(max(re_blue, re_red), re);
+                }
+                x -= re;
+            }
+
+            if (x == 0) {
+                x = J1Pieces - J2Pieces;
+                x += (nbJ1Seeds - nbJ2Seeds)/10;
+            }
+//            else {
+//                printf("reward %d\n", x);
 //            }
-//        }
+
+            return x;
+        }
     } else {
-        if (!AIPlaying && nbJ1Seeds <= 0) { // Si on est joueur 2 et qu'on évalue notre propre coup
-            x = 64;
-        } else if (AIPlaying && nbJ2Seeds <= 0) { // on évalue le coup de l'adversaire (J2)
+        if (AIPlaying && nbJ2Seeds <= 0) { // on évalue le coup de l'adversaire (J2)
             return -64;
         } else if (J1Pieces > 32) {
             return -64;
-        } else if (J2Pieces > 32) {
-            x = 64;
         } else if (nbSeeds < 8 && J2Pieces < J1Pieces) {
             return -64;
+        } else if (!AIPlaying && nbJ1Seeds <= 0) { // Si on est joueur 2 et qu'on évalue notre propre coup
+            return 64 + depthMax - depth;
         } else if (nbSeeds < 8 && J2Pieces > J1Pieces) {
-            x = 64;
+            return 64 + depthMax - depth;
+        } else if (J2Pieces > 32) {
+            return 64 + depthMax - depth;
         } else {
+            int x;
             x = J2Pieces - J1Pieces;
+            for (int i = 0; i < SIZE; i++) {
+                int c = board.getCaseRed()[i] + board.getCaseBlue()[i];
+
+            }
+            return x;
         }
-        x += (nbJ2Seeds - nbJ1Seeds) / 10;
-//        for (int i = 1; i < SIZE; i+=2) {
-//            int seeds = board.getCaseRed()[i] + board.getCaseBlue()[i];
-//            if (seeds == 2 || seeds == 3) {
-//                x += seeds;
-//            }
-//        }
     }
-    x += depthMax - depth;
-    return x;
+
 }
 
 

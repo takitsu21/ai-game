@@ -6,6 +6,7 @@
 #include "src/AbstractIA.h"
 #include "src/BaseIA.h"
 #include <ctime>
+#include <chrono>
 #include <string>
 #include <thread>
 #include <array>
@@ -91,7 +92,7 @@ pair<int, bool> getIAMove(AbstractIA *IA, Board board, bool isJ1, int depthMax) 
     int x;
     bool isRed;
     long long acc = 0;
-    clock_t time_req = clock();
+    //clock_t time_req = clock();
 
     if (isJ1) {
         cout << "IA J1 Turn:" << endl;
@@ -105,7 +106,7 @@ pair<int, bool> getIAMove(AbstractIA *IA, Board board, bool isJ1, int depthMax) 
     x = IA->start(board, true, 0, depthMax, &acc, isJ1);
 
     cout << "Number of nodes: " << acc << endl;
-    cout << "Time to respond: " << (float) (clock() - time_req) / CLOCKS_PER_SEC << endl;
+    //cout << "Time to respond: " << (float) (clock() - time_req) / CLOCKS_PER_SEC << endl;
 
     if (x < SIZE) {
         isRed = true;
@@ -147,10 +148,8 @@ void gameLoop(Board board) {
         bool isRed;
         pair<int, bool> res;
 
-        AbstractIA *IA_J1 = new BaseIA();
-        AbstractIA *IA_J2 = new QuiesceIA();
-//        AbstractIA *IA_J1 = new QuiesceIA();
-//        AbstractIA *IA_J2 = new BaseIA();
+        AbstractIA *IA_J1 = new QuiesceIA();
+        AbstractIA *IA_J2 = new BaseIA();
 
         cout << "\n\n";
         cout << "############################################################################" << endl;
@@ -160,13 +159,23 @@ void gameLoop(Board board) {
             if (humanPlayer1 == 1) {
                 res = getPlayerMove(true);
             } else {
+                auto start = chrono::steady_clock::now();
                 res = getIAMove(IA_J1, board, true, 9);
+                auto end = chrono::steady_clock::now();
+
+                std::chrono::duration<double> elapsed = end - start;
+                cout << "Time to respond: " << elapsed.count() << endl;
             }
         } else {
             if (humanPlayer2 == 2) {
                 res = getPlayerMove(false);
             } else {
+                auto start = chrono::steady_clock::now();
                 res = getIAMove(IA_J2, board, false, 9);
+                auto end = chrono::steady_clock::now();
+
+                std::chrono::duration<double> elapsed = end - start;
+                cout << "Time to respond: " << elapsed.count() << endl;
             }
 
         }
