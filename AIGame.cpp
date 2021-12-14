@@ -99,7 +99,7 @@ pair<int, bool> getIAMove(AbstractIA *IA, Board board, bool isJ1, int depthMax) 
         cout << "IA J2 Turn:" << endl;
     }
 
-    depthMax = IA->evaluateDepth(board, isJ1, depthMax);
+//    depthMax = IA->evaluateDepth(board, isJ1, depthMax);
     cout << "Depth: " << depthMax << endl;
 
     x = IA->start(board, true, 0, depthMax, &acc, isJ1);

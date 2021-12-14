@@ -16,63 +16,51 @@ int QuiesceIA::evaluate(Board board, bool isJ1, bool AIPlaying, int depth, int d
     int nbSeeds = board.getNbSeeds();
 
     if (isJ1) {
-        if (!AIPlaying && nbJ2Seeds <= 0) { // Si on est joueur 1 et qu'on évalue un coup de l'IA
+        if (!AIPlaying && nbJ1Seeds <= 0) { // Si on est joueur 2 et qu'on évalue notre propre coup
             x = 64;
-        } else if (AIPlaying && nbJ1Seeds <= 0) { // on évalue le coup de l'adversaire (J2)
+        } else if (AIPlaying && nbJ2Seeds <= 0) { // on évalue le coup de l'adversaire (J2)
             x = -64;
-        }
-        else if (J2Pieces > 32) {
-            return -64;
-        } else if (J1Pieces > 32) {
-            x = 64;
         } else if (nbSeeds < 8 && J1Pieces < J2Pieces) {
             return -64;
         } else if (nbSeeds < 8 && J1Pieces > J2Pieces) {
             x = 64;
+        } else if (J2Pieces > 32) {
+            x = -64;
+        } else if (J1Pieces > 32) {
+            x = 64;
         } else {
             x = J1Pieces - J2Pieces;
         }
-
-        x += (nbJ1Seeds - nbJ2Seeds) / 10;
         if (x < 0 && nbJ1Seeds <= 3) {
             return -64;
         }
+        x += (nbJ1Seeds - nbJ2Seeds) / 10;
+
     } else {
-        if (!AIPlaying && nbJ1Seeds <= 0 && J1Pieces < 33) { // Si on est joueur 2 et qu'on évalue notre propre coup
+        if (nbSeeds < 8 && J2Pieces < J1Pieces) {
+            return -64;
+        } else if (J1Pieces > 32) {
+            return -64;
+        } else if (!AIPlaying && nbJ1Seeds <= 0) { // Si on est joueur 2 et qu'on évalue notre propre coup
             x = 64;
-        }
-        else if (!AIPlaying && nbJ2Seeds <= 0 && J2Pieces > 32) {
-            x = 64;
-        }
-        else if (AIPlaying && nbJ1Seeds <= 0 && J1Pieces > 32) {
-            return -64;
-        }
-        else if (AIPlaying && nbJ2Seeds <= 0) {
-            return -64;
-        }
-        else if (J1Pieces > 32) {
-            return -64;
-        } else if (J2Pieces > 32) {
-            x = 64;
-        } else if (nbSeeds < 8 && J2Pieces < J1Pieces) {
-            return -64;
+        } else if (AIPlaying && nbJ2Seeds <= 0) { // on évalue le coup de l'adversaire (J2)
+            x = -64;
         } else if (nbSeeds < 8 && J2Pieces > J1Pieces) {
+            x = 64;
+        } else if (J2Pieces > 32) {
             x = 64;
         } else {
             x = J2Pieces - J1Pieces;
         }
-
-        x += (nbJ2Seeds - nbJ1Seeds) / 10;
         if (x < 0 && nbJ2Seeds <= 3) {
             return -64;
         }
-
+        x += (nbJ2Seeds - nbJ1Seeds) / 10;
     }
     x += depthMax - depth;
     return x;
 
 }
-
 
 
 int QuiesceIA::minmax_alphaBeta(Board &currentBoard, bool AIPlaying, int depth, int depthMax, long long *acc,
@@ -102,8 +90,6 @@ int QuiesceIA::minmax_alphaBeta(Board &currentBoard, bool AIPlaying, int depth, 
                     moves[i + SIZE] = make_pair(score,
                                                 make_pair(i, isRed));
                 }
-
-
             }
         }
     }
@@ -179,16 +165,17 @@ int QuiesceIA::quiesce(Board board, int alpha, int beta, bool AIPlaying, bool is
                 nextBoard.nextPlayer();
 
 
-                standPat = -quiesce(nextBoard, -beta, -alpha, !AIPlaying, isJ1, depth + 1, depthMax);
-                if (standPat >= beta) {
-                    return beta;
-                }
+                standPat = max(standPat, -quiesce(nextBoard, -beta, -alpha, !AIPlaying, isJ1, depth + 1, depthMax));
                 if (standPat > alpha) {
                     alpha = standPat;
                 }
+                if (standPat >= beta) {
+                    return beta;
+                }
+
 
             }
         }
     }
-    return alpha;
+    return standPat;
 }
