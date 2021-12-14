@@ -10,6 +10,10 @@ Board::Board() {
     nbJ1Seeds = 32;
     nbJ2Seeds = 32;
     nbSeeds = MAX_SEEDS;
+    nbJ1RedSeeds = 0;
+    nbJ2RedSeeds = 0;
+    nbJ1BlueSeeds = 0;
+    nbJ2BlueSeeds = 0;
     isJ1Turn = true;
     J2Pieces = 0;
     J1Pieces = 0;
@@ -29,6 +33,10 @@ Board::Board(const Board &obj) {
     isJ1Turn = obj.isJ1Turn;
     J2Pieces = obj.J2Pieces;
     J1Pieces = obj.J1Pieces;
+    nbJ1RedSeeds = obj.nbJ1RedSeeds;
+    nbJ2RedSeeds = obj.nbJ2RedSeeds;
+    nbJ1BlueSeeds = obj.nbJ1BlueSeeds;
+    nbJ2BlueSeeds = obj.nbJ2BlueSeeds;
 }
 
 Board Board::copy() {
@@ -44,6 +52,10 @@ Board Board::copy() {
     b.isJ1Turn = isJ1Turn;
     b.J2Pieces = J2Pieces;
     b.J1Pieces = J1Pieces;
+    b.nbJ1RedSeeds = nbJ1RedSeeds;
+    b.nbJ2RedSeeds = nbJ2RedSeeds;
+    b.nbJ1BlueSeeds = nbJ1BlueSeeds;
+    b.nbJ2BlueSeeds = nbJ2BlueSeeds;
 
     return b;
 }
@@ -55,14 +67,15 @@ Board::~Board() {
 void Board::printCases() {
     printf("score J1 : %d\nscore J2 : %d\n\n", J1Pieces, J2Pieces);
 
+    for (int i = 1; i <= SIZE / 2; i++) {
+        printf("   %d    ", i);
+    }
+    printf("\n");
     for (int i = 0; i < SIZE / 2; i++) {
         printf("|%dR %dB| ",
                redCase[i], blueCase[i]);
     }
-    printf("\n");
-    for (int i = 1; i <= SIZE / 2; i++) {
-        printf("   %d    ", i);
-    }
+
     printf("\n---------------------------------------------------------------\n");
 
     for (int i = SIZE - 1; i >= SIZE / 2; i--) {
@@ -83,13 +96,9 @@ bool Board::getIsJ1Turn() const {
 }
 
 
-bool Board::play(int move, bool isRed) {
+void Board::play(int move, bool isRed) {
     int seeds;
 
-    if (!checkValidMove(move, isRed)) {
-        printf("Coup invalide !\n");
-        return false;
-    }
     if (isRed) {
         seeds = redCase[move];
         redCase[move] = 0;
@@ -145,14 +154,22 @@ bool Board::play(int move, bool isRed) {
     eatSeeds(index);
     nbJ1Seeds = 0;
     nbJ2Seeds = 0;
+    nbJ1RedSeeds = 0;
+    nbJ2RedSeeds = 0;
+    nbJ1BlueSeeds = 0;
+    nbJ2BlueSeeds = 0;
     for (int i = 0; i < SIZE; i++) {
         if (isJ1Case[i]) {
             nbJ1Seeds += blueCase[i] + redCase[i];
+            nbJ1RedSeeds += redCase[i];
+            nbJ1BlueSeeds += blueCase[i];
+
         } else {
             nbJ2Seeds += blueCase[i] + redCase[i];
+            nbJ2RedSeeds += redCase[i];
+            nbJ2BlueSeeds += blueCase[i];
         }
     }
-    return true;
 }
 
 bool Board::isEnd(bool isJ1) const {
@@ -211,58 +228,6 @@ void Board::addPieces(int pieces) {
     nbSeeds -= pieces;
 }
 
-
-int Board::evaluate(bool isJ1, bool AIPlaying, int depth, int depthMax) const {
-//    if (isJ1) {
-//        return J1Pieces - J2Pieces;
-//    } else {
-//        return J2Pieces - J1Pieces;
-//    }
-    int x;
-
-    if (isJ1) {
-        if (!AIPlaying && nbJ2Seeds <= 0) { // Si on est joueur 1 et qu'on évalue un coup de l'IA
-            x = 64;
-        }
-        else if (AIPlaying && nbJ1Seeds <= 0) { // on évalue le coup de l'adversaire (J2)
-            x = -64;
-        }
-        else if (J2Pieces > 32) {
-            x = -64;
-        } else if (J1Pieces > 32) {
-            x = 64;
-        } else if (nbSeeds < 8 && J1Pieces < J2Pieces ) {
-            x = -64;
-        } else if ( nbSeeds < 8 && J1Pieces > J2Pieces) {
-            x = 64;
-        } else {
-            x = J1Pieces - J2Pieces;
-        }
-        x += (nbJ1Seeds - nbJ2Seeds) / 10;
-    }
-    else {
-        if (!AIPlaying && nbJ1Seeds <= 0) { // Si on est joueur 2 et qu'on évalue notre propre coup
-            x = 64;
-        }
-        else if (AIPlaying && nbJ2Seeds <= 0) { // on évalue le coup de l'adversaire (J2)
-            x = -64;
-        }
-        else if (J1Pieces > 32) {
-            x = -64;
-        } else if (J2Pieces > 32) {
-            x = 64;
-        } else if (nbSeeds < 8 && J2Pieces < J1Pieces) {
-            x = -64;
-        } else if (nbSeeds < 8 && J2Pieces > J1Pieces) {
-            x = 64;
-        } else {
-            x = J2Pieces - J1Pieces;
-        }
-        x += (nbJ2Seeds - nbJ1Seeds) / 10;
-    }
-    x += depthMax - depth;
-    return x;
-}
 
 void Board::nextPlayer() {
     isJ1Turn = !isJ1Turn;

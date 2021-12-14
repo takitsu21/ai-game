@@ -3,12 +3,15 @@
 
 #include <iostream>
 #include "src/Board.h"
-#include "src/IA.h"
+#include "src/AbstractIA.h"
+#include "src/BaseIA.h"
 #include <ctime>
 #include <string>
 #include <thread>
 #include <array>
-
+#include "src/QuiesceIA.h"
+#include "src/DylIA.h"
+#include "src/AntIA1.h"
 
 void winner(const Board &board) {
 
@@ -56,7 +59,7 @@ string inputPlayer(bool isJ1) {
 
 pair<int, bool> parse(string s) {
     char color = s.back();
-    int x;
+    int x = 0;
     bool isRed;
     if (color == 'B' || color == 'b') {
         isRed = false;
@@ -84,7 +87,7 @@ pair<int, bool> getPlayerMove(bool isJ1) {
     return parse(s);
 }
 
-pair<int, bool> getIAMoveThread(Board board, bool isJ1, int depthMax) {
+pair<int, bool> getIAMove(AbstractIA *IA, Board board, bool isJ1, int depthMax) {
     int x;
     bool isRed;
     long long acc = 0;
@@ -96,10 +99,10 @@ pair<int, bool> getIAMoveThread(Board board, bool isJ1, int depthMax) {
         cout << "IA J2 Turn:" << endl;
     }
 
-    //depthMax = evaluateDepth(board, isJ1, depthMax);
+//    depthMax = IA->evaluateDepth(board, isJ1, depthMax);
     cout << "Depth: " << depthMax << endl;
 
-    x = minmax_alphaBetaStart(board, true, 0, depthMax, &acc, isJ1);
+    x = IA->start(board, true, 0, depthMax, &acc, isJ1);
 
     cout << "Number of nodes: " << acc << endl;
     cout << "Time to respond: " << (float) (clock() - time_req) / CLOCKS_PER_SEC << endl;
@@ -116,40 +119,66 @@ pair<int, bool> getIAMoveThread(Board board, bool isJ1, int depthMax) {
     return make_pair(x, isRed);
 }
 
+int isJ1AIChoice() {
+    int x = -2;
+    while (x != -1 && x != 1 && x != 2) {
+        cout << "Which player is the human player ?\n1 - J1\n2 - J2\n-1 - 2 AI\n ";
+        cin >> x;
+    }
+    cin.clear();
+    fflush(stdin);
+    return x;
+}
+
 void gameLoop(Board board) {
     int nbTour = 0;
+    int humanPlayer1 = -1;
+    int humanPlayer2 = -1;
+    int startChoice = isJ1AIChoice();
+    if (startChoice == 1) {
+        humanPlayer1 = 1;
+    } else if (startChoice == 2) {
+        humanPlayer2 = 2;
+    }
 
 
     while (!board.isEnd(board.getIsJ1Turn())) {
         int x;
         bool isRed;
-        bool validMove;
+        pair<int, bool> res;
+
+        AbstractIA *IA_J1 = new QuiesceIA();
+        AbstractIA *IA_J2 = new DylIA();
+//        AbstractIA *IA_J1 = new QuiesceIA();
+//        AbstractIA *IA_J2 = new BaseIA();
 
         cout << "\n\n";
         cout << "############################################################################" << endl;
         cout << "Tour: " << nbTour << endl;
         board.printCases();
         if (board.getIsJ1Turn()) {
-//            pair<int, bool> res = getPlayerMove(true);
-            pair<int, bool> res = getIAMoveThread(board, true, 2);
-            x = res.first;
-            isRed = res.second;
+            if (humanPlayer1 == 1) {
+                res = getPlayerMove(true);
+            } else {
+                res = getIAMove(IA_J1, board, true, 8);
+            }
         } else {
-//            pair<int, bool> res = getPlayerMove(true);
-            pair<int, bool> res = getIAMoveThread(board, false, 7);
-            x = res.first;
-            isRed = res.second;
-        }
+            if (humanPlayer2 == 2) {
+                res = getPlayerMove(false);
+            } else {
+                res = getIAMove(IA_J2, board, false, 7);
+            }
 
+        }
+        x = res.first;
+        isRed = res.second;
 
         if (x == -1) {
             cout << "Coup invalide !" << endl;
             continue;
         }
-        validMove = board.play(x, isRed);
-        if (validMove) {
-            board.nextPlayer();
-        }
+        board.play(x, isRed);
+        board.nextPlayer();
         nbTour++;
     }
     board.printCases(); // etat final du jeu

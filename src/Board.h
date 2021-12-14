@@ -21,8 +21,13 @@ private:
     int nbSeeds;
     int nbJ1Seeds;
     int nbJ2Seeds;
-
 public:
+
+    int nbJ1RedSeeds;
+    int nbJ2RedSeeds;
+    int nbJ1BlueSeeds;
+    int nbJ2BlueSeeds;
+
     Board();
     explicit Board(bool test);
     Board(const Board& board);
@@ -35,9 +40,7 @@ public:
 
     void addPieces(int pieces);
 
-    int evaluate(bool isJ1, bool AIPlaying, int depth, int depthMax) const;
-
-    bool play(int move, bool isRed);
+    void play(int move, bool isRed);
 
     bool isEnd(bool isJ1) const;
 
