@@ -15,8 +15,6 @@ public:
               long long int *acc, bool isJ1) override ;
     int evaluate(Board board, bool isJ1, bool AIPlaying, int depth, int depthMax) override;
 
-private:
-
 
     int evaluateDepth(Board board, bool isJ1, int depthMax) override;
 

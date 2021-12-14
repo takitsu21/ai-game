@@ -3,7 +3,14 @@
 //
 
 #include "BaseIA.h"
+#include "IA.h"
 
+void printTab(array<int*, TAB_VALUES_SIZE> tab) {
+    for (int i = 0; i < TAB_VALUES_SIZE; i++) {
+        printf("[%d] ", *tab[i]);
+    }
+    printf("\n------------------------------------\n");
+}
 
 int BaseIA::evaluate(Board board, bool isJ1, bool AIPlaying, int depth, int depthMax) {
     int x;
@@ -88,7 +95,7 @@ int BaseIA::evaluateDepth(Board board, bool isJ1, int depthMax) {
 int BaseIA::minmax_alphaBeta(Board &currentBoard, bool AIPlaying, int depth, int depthMax, long long *acc, bool isJ1,
                              int alpha, int beta) {
 
-    *acc = *acc + 1;
+
 
     if (currentBoard.isEnd(isJ1) || depth == depthMax) {
         int score = evaluate(currentBoard, isJ1, AIPlaying, depth, depthMax);
@@ -107,6 +114,7 @@ int BaseIA::minmax_alphaBeta(Board &currentBoard, bool AIPlaying, int depth, int
                     Board nextBoard = currentBoard.copy();
                     nextBoard.play(i, isRed);
                     nextBoard.nextPlayer();
+                    *acc = *acc + 1;
 
                     bestMove = max(bestMove,
                                    minmax_alphaBeta(nextBoard, false, depth + 1, depthMax, acc, isJ1, alpha, beta));
@@ -197,7 +205,7 @@ int BaseIA::start(Board &currentBoard, bool AIPlaying, int depth, int depthMax, 
 
     int res;
     res = maxFromArrayPtr(tabValues);
-
+    printTab(tabValues);
     for (int i = 0; i < TAB_VALUES_SIZE; i++) {
         delete tabValues[i];
     }

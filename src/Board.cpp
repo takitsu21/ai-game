@@ -67,14 +67,15 @@ Board::~Board() {
 void Board::printCases() {
     printf("score J1 : %d\nscore J2 : %d\n\n", J1Pieces, J2Pieces);
 
+    for (int i = 1; i <= SIZE / 2; i++) {
+        printf("   %d    ", i);
+    }
+    printf("\n");
     for (int i = 0; i < SIZE / 2; i++) {
         printf("|%dR %dB| ",
                redCase[i], blueCase[i]);
     }
-    printf("\n");
-    for (int i = 1; i <= SIZE / 2; i++) {
-        printf("   %d    ", i);
-    }
+
     printf("\n---------------------------------------------------------------\n");
 
     for (int i = SIZE - 1; i >= SIZE / 2; i--) {
