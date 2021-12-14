@@ -5,6 +5,13 @@
 #include "BaseIA.h"
 #include "IA.h"
 
+void printTab(array<int*, TAB_VALUES_SIZE> tab) {
+    for (int i = 0; i < TAB_VALUES_SIZE; i++) {
+        printf("[%d] ", *tab[i]);
+    }
+    printf("\n------------------------------------\n");
+}
+
 int BaseIA::evaluate(Board board, bool isJ1, bool AIPlaying, int depth, int depthMax) {
     int x;
 
@@ -198,7 +205,7 @@ int BaseIA::start(Board &currentBoard, bool AIPlaying, int depth, int depthMax, 
 
     int res;
     res = maxFromArrayPtr(tabValues);
-
+    printTab(tabValues);
     for (int i = 0; i < TAB_VALUES_SIZE; i++) {
         delete tabValues[i];
     }

@@ -6,12 +6,12 @@
 #include <array>
 
 #include "IA.h"
+#include <utility>
+#include <algorithm>
+#include <iterator>
 
-void printTab(array<int*, TAB_VALUES_SIZE> tab) {
-    for (int i = 0; i < TAB_VALUES_SIZE; i++) {
-        printf("[%d] ", *tab[i]);
-    }
-    printf("\n------------------------------------\n");
+bool myCompare(const std::pair<int, pair<int, bool>> &p1, const std::pair<int, pair<int, bool>> &p2) {
+    return p1.first > p2.first;
 }
 
 int maxFromArrayPtr(array<int*, TAB_VALUES_SIZE> tabValues) {
