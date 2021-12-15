@@ -6,12 +6,15 @@
 #include "src/AbstractIA.h"
 #include "src/BaseIA.h"
 #include <ctime>
+#include <chrono>
 #include <string>
 #include <thread>
 #include <array>
 #include "src/QuiesceIA.h"
 #include "src/DylIA.h"
 #include "src/AntIA1.h"
+#include "src/AllIA.h"
+#include "src/returnIA.h"
 
 void winner(const Board &board) {
 
@@ -87,11 +90,11 @@ pair<int, bool> getPlayerMove(bool isJ1) {
     return parse(s);
 }
 
-pair<int, bool> getIAMove(AbstractIA *IA, Board board, bool isJ1, int depthMax) {
+pair<int, bool> getIAMove(AbstractIA *IA, Board board, bool isJ1, int depthMax, double oldTimer, int *oldDepth) {
     int x;
     bool isRed;
     long long acc = 0;
-    clock_t time_req = clock();
+    //clock_t time_req = clock();
 
     if (isJ1) {
         cout << "IA J1 Turn:" << endl;
@@ -99,13 +102,20 @@ pair<int, bool> getIAMove(AbstractIA *IA, Board board, bool isJ1, int depthMax) 
         cout << "IA J2 Turn:" << endl;
     }
 
-//    depthMax = IA->evaluateDepth(board, isJ1, depthMax);
+    depthMax = IA->evaluateDepth(board, isJ1, depthMax);
+    if (oldTimer < 0.150) {
+        depthMax++;
+    } else if (oldTimer < 0.08) {
+        depthMax += 2;
+    } else if (oldTimer != 1000.0 && oldTimer >= 2.5) {
+        depthMax--;
+    }
     cout << "Depth: " << depthMax << endl;
 
     x = IA->start(board, true, 0, depthMax, &acc, isJ1);
-
+    *oldDepth = depthMax;
     cout << "Number of nodes: " << acc << endl;
-    cout << "Time to respond: " << (float) (clock() - time_req) / CLOCKS_PER_SEC << endl;
+    //cout << "Time to respond: " << (float) (clock() - time_req) / CLOCKS_PER_SEC << endl;
 
     if (x < SIZE) {
         isRed = true;
@@ -141,14 +151,19 @@ void gameLoop(Board board) {
         humanPlayer2 = 2;
     }
 
-
+    int clockLimit = 0;
+    int clockLimit2 = 0;
+    double old = 1000.0;
+    double old2 = 1000.0;
+    int oldDepth = 1000;
+    int oldDepth2 = 1000;
     while (!board.isEnd(board.getIsJ1Turn())) {
         int x;
         bool isRed;
         pair<int, bool> res;
 
-        AbstractIA *IA_J1 = new QuiesceIA();
-        AbstractIA *IA_J2 = new DylIA();
+        AbstractIA *IA_J1 = new AllIA();
+        AbstractIA *IA_J2 = new AllIA();
 //        AbstractIA *IA_J1 = new QuiesceIA();
 //        AbstractIA *IA_J2 = new BaseIA();
 
@@ -160,20 +175,38 @@ void gameLoop(Board board) {
             if (humanPlayer1 == 1) {
                 res = getPlayerMove(true);
             } else {
-                res = getIAMove(IA_J1, board, true, 8);
+                auto start = chrono::steady_clock::now();
+                res = getIAMove(IA_J1, board, true, 9, old, &oldDepth);
+                auto end = chrono::steady_clock::now();
+
+                std::chrono::duration<double> elapsed = end - start;
+                if (elapsed.count() >= 2) {
+                    clockLimit++;
+                }
+                old = elapsed.count();
+                cout << "Time to respond: " << elapsed.count() << endl;
             }
         } else {
             if (humanPlayer2 == 2) {
                 res = getPlayerMove(false);
             } else {
-                res = getIAMove(IA_J2, board, false, 7);
+                auto start = chrono::steady_clock::now();
+                res = getIAMove(IA_J2, board, false, 9, old2, &oldDepth2);
+                auto end = chrono::steady_clock::now();
+
+                std::chrono::duration<double> elapsed = end - start;
+                if (elapsed.count() >= 2) {
+                    clockLimit2++;
+                }
+                old2 = elapsed.count();
+                cout << "Time to respond: " << elapsed.count() << endl;
             }
 
         }
         x = res.first;
         isRed = res.second;
 
-        if (x == -1) {
+        if (!board.checkValidMove(x, isRed)) {
             cout << "Coup invalide !" << endl;
             continue;
         }
@@ -183,7 +216,7 @@ void gameLoop(Board board) {
     }
     board.printCases(); // etat final du jeu
     printf("\n");
-
+    printf("Overtime J1 : %d\nOvertimeJ2 : %d \n", clockLimit, clockLimit2);
     winner(board);
 }
 

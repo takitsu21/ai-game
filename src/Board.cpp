@@ -252,3 +252,11 @@ int Board::getNbJ2Pieces() const {
 int Board::getNbSeeds() const {
     return nbSeeds;
 }
+
+int *Board::getCaseRed() {
+    return redCase;
+}
+
+int *Board::getCaseBlue() {
+    return blueCase;
+}

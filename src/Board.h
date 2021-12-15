@@ -60,6 +60,10 @@ public:
 
     int getNbSeeds() const;
 
+    int* getCaseRed();
+
+    int* getCaseBlue();
+
     Board copy();
 
 };
