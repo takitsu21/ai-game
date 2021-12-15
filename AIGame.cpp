@@ -101,11 +101,11 @@ pair<int, bool> getIAMove(AbstractIA *IA, Board board, bool isJ1, int depthMax, 
     }
 
     depthMax = IA->evaluateDepth(board, isJ1, depthMax);
-    if (oldTimer < 0.150 && *oldDepth <= depthMax) {
+    if (oldTimer < 0.150 && *oldDepth >= depthMax) {
         depthMax++;
-    } else if (oldTimer < 0.05 && *oldDepth <= depthMax) {
+    } else if (oldTimer < 0.05 && *oldDepth >= depthMax) {
         depthMax += 2;
-    } else if (oldTimer >= 2.8 && *oldDepth <= depthMax) {
+    } else if (oldTimer != 1000.0 && oldTimer >= 2.8 && *oldDepth >= depthMax) {
         depthMax--;
     }
     cout << "Depth: " << depthMax << endl;
@@ -214,7 +214,7 @@ void gameLoop(Board board) {
     }
     board.printCases(); // etat final du jeu
     printf("\n");
-//    printf("Overtime J1 : %d\nOvertimeJ2 : %d \n", clockLimit, clockLimit2);
+    printf("Overtime J1 : %d\nOvertimeJ2 : %d \n", clockLimit, clockLimit2);
     winner(board);
 }
 

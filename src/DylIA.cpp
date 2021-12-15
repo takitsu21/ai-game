@@ -35,7 +35,7 @@ int DylIA::evaluate(Board board, bool isJ1, bool AIPlaying, int depth, int depth
             x = J1Pieces - J2Pieces;
         }
         x += (nbJ1Seeds - nbJ2Seeds) / 10;
-        x += (nbJ1BlueSeeds - nbJ2BlueSeeds) / 10;
+//        x += (nbJ1BlueSeeds - nbJ2BlueSeeds) / 10;
         x += (nbJ1RedSeeds - nbJ2RedSeeds) / 10;
 
     } else {
