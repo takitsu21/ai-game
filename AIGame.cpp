@@ -88,7 +88,7 @@ pair<int, bool> getPlayerMove(bool isJ1) {
     return parse(s);
 }
 
-pair<int, bool> getIAMove(AbstractIA *IA, Board board, bool isJ1, int depthMax) {
+pair<int, bool> getIAMove(AbstractIA *IA, Board board, bool isJ1, int depthMax, double oldTimer) {
     int x;
     bool isRed;
     long long acc = 0;
@@ -101,6 +101,9 @@ pair<int, bool> getIAMove(AbstractIA *IA, Board board, bool isJ1, int depthMax) 
     }
 
     depthMax = IA->evaluateDepth(board, isJ1, depthMax);
+    if (oldTimer < 0.150) {
+        depthMax++;
+    }
     cout << "Depth: " << depthMax << endl;
 
     x = IA->start(board, true, 0, depthMax, &acc, isJ1);
@@ -142,14 +145,19 @@ void gameLoop(Board board) {
         humanPlayer2 = 2;
     }
 
-
+    int clockLimit = 0;
+    int clockLimit2 = 0;
+    double old = 1000.0;
+    double old2 = 1000.0;
     while (!board.isEnd(board.getIsJ1Turn())) {
         int x;
         bool isRed;
         pair<int, bool> res;
 
-        AbstractIA *IA_J1 = new QuiesceIA();
-        AbstractIA *IA_J2 = new BaseIA();
+        AbstractIA *IA_J1 = new BaseIA();
+        AbstractIA *IA_J2 = new DylIA();
+//        AbstractIA *IA_J1 = new QuiesceIA();
+//        AbstractIA *IA_J2 = new BaseIA();
 
         cout << "\n\n";
         cout << "############################################################################" << endl;
@@ -160,10 +168,14 @@ void gameLoop(Board board) {
                 res = getPlayerMove(true);
             } else {
                 auto start = chrono::steady_clock::now();
-                res = getIAMove(IA_J1, board, true, 9);
+                res = getIAMove(IA_J1, board, true, 9, old);
                 auto end = chrono::steady_clock::now();
 
                 std::chrono::duration<double> elapsed = end - start;
+                if (elapsed.count() >= 2) {
+                    clockLimit++;
+                }
+                old = elapsed.count();
                 cout << "Time to respond: " << elapsed.count() << endl;
             }
         } else {
@@ -171,10 +183,14 @@ void gameLoop(Board board) {
                 res = getPlayerMove(false);
             } else {
                 auto start = chrono::steady_clock::now();
-                res = getIAMove(IA_J2, board, false, 9);
+                res = getIAMove(IA_J2, board, false, 9, old2);
                 auto end = chrono::steady_clock::now();
 
                 std::chrono::duration<double> elapsed = end - start;
+                if (elapsed.count() >= 2) {
+                    clockLimit2++;
+                }
+                old2 = elapsed.count();
                 cout << "Time to respond: " << elapsed.count() << endl;
             }
 
@@ -192,7 +208,7 @@ void gameLoop(Board board) {
     }
     board.printCases(); // etat final du jeu
     printf("\n");
-
+//    printf("Overtime J1 : %d\nOvertimeJ2 : %d \n", clockLimit, clockLimit2);
     winner(board);
 }
 

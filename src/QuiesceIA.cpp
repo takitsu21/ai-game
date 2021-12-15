@@ -7,7 +7,6 @@
 
 
 int QuiesceIA::evaluate(Board board, bool isJ1, bool AIPlaying, int depth, int depthMax) {
-
     int nbJ2Seeds = board.getNbJ2Seeds();
     int nbJ1Seeds = board.getNbJ1Seeds();
     int J2Pieces = board.getNbJ2Pieces();
@@ -28,120 +27,127 @@ int QuiesceIA::evaluate(Board board, bool isJ1, bool AIPlaying, int depth, int d
         } else if (J1Pieces > 32) {
             return 64 + depthMax - depth;
         } else {
-            int x=0;
+            int x =  J1Pieces - J2Pieces;
 
-            if (AIPlaying) {
-                int re = 0;
-                for (int i = 0; i < SIZE; i += 2) {
-                    int red = board.getCaseRed()[i];
-                    int blue = board.getCaseBlue()[i];
-                    int re_red = 0;
-                    int re_blue = 0;
+            if (board.getNbSeeds() < 25) {
+                // fin de partie
+                x += (nbJ1Seeds - nbJ2Seeds) / 10;
 
-                    if (red > 0) {
-                        int k = (i+red)%SIZE;
-                        int c = board.getCaseRed()[k] + board.getCaseBlue()[k];
-                        if (c == 2 || c == 1) {
-
-                            re_red += c+1;
-                            int j = (k-1)%SIZE;
-                            while (true) {
-                                c = board.getCaseRed()[j] + board.getCaseBlue()[j];
-                                if (c+1 == 3 || c+1 == 2) {
-                                    re_red += c+1;
-                                    j-= 1 % SIZE;
-                                }
-                                else {
-                                    break;
-                                }
-                            }
-                        }
+            }
+            else if (board.getNbSeeds() <= 40) {
+                // milieu de partie
+                int caseGrenier = 0;
+                int maxSeeds = 0;
+                for (int i = 0; i < SIZE;i+=2) {
+                    int total = board.getCaseRed()[i] + board.getCaseBlue()[i];
+                    if (total >= 6) {
+                        maxSeeds = total;
                     }
-                    if (blue > 0) {
-                        int k = (i+blue*2 - 1)%SIZE;
-                        int c = board.getCaseRed()[k] + board.getCaseBlue()[k];
-                        if (c == 2 || c == 1) {
-
-                            re_blue += c+1;
-                            int j = (k-1)%SIZE;
-                            int inc = 0;
-                            while (true) {
-                                c = board.getCaseRed()[j] + board.getCaseBlue()[j];
-                                if (c+inc == 2 || c+inc == 3) {
-                                    re_blue += c+1;
-                                    j-= 1 % SIZE;
-                                    inc -- % 2;
-                                }
-                                else {
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                    re = max(max(re_blue, re_red), re);
                 }
-                x += re;
-            }
-            else {
-                int re = 0;
-                for (int i = 1; i < SIZE; i += 2) {
-                    int red = board.getCaseRed()[i];
-                    int blue = board.getCaseBlue()[i];
-                    int re_red = 0;
-                    int re_blue = 0;
-                    if (red > 0) {
-                        int k = (i+red)%SIZE;
-                        int c = board.getCaseRed()[k] + board.getCaseBlue()[k];
-                        if (c == 2 || c == 1) {
-
-                            re_red += c+1;
-                            int j = (k-1)%SIZE;
-                            while (true) {
-                                c = board.getCaseRed()[j] + board.getCaseBlue()[j];
-                                if (c+1 == 3 || c+1 == 2) {
-                                    re_red += c+1;
-                                    j-= 1 % SIZE;
-                                }
-                                else {
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                    if (blue > 0) {
-                        int k = (i+blue*2 - 1)%SIZE;
-                        int c = board.getCaseRed()[k] + board.getCaseBlue()[k];
-                        if (c == 2 || c == 1) {
-
-                            re_blue += c+1;
-                            int j = (k-1)%SIZE;
-                            int inc = 0;
-                            while (true) {
-                                c = board.getCaseRed()[j] + board.getCaseBlue()[j];
-                                if (c+inc == 2 || c+inc == 3) {
-                                    re_blue += c+1;
-                                    j-= 1 % SIZE;
-                                    inc -- % 2;
-                                }
-                                else {
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                    re = max(max(re_blue, re_red), re);
+                if (maxSeeds) {
+                    x += 2;
                 }
-                x -= re;
+
+            }
+            else if (board.getNbSeeds() <= 64) {
+                // debut de partie
+                int nbAlterne = 0;
+                bool isAlternated = false;
+                for (int i = 0; i < SIZE;i+=2) {
+                    int total = board.getCaseRed()[i] + board.getCaseBlue()[i];
+                    int total2 = board.getCaseRed()[i+1] + board.getCaseBlue()[i+1];
+
+                    if (total == 0 && total2 > 0) {
+                        nbAlterne++;
+                    }
+                }
+                x += nbAlterne / 2;
             }
 
-            if (x == 0) {
-                x = J1Pieces - J2Pieces;
-                x += (nbJ1Seeds - nbJ2Seeds)/10;
-            }
-//            else {
-//                printf("reward %d\n", x);
+
+//            int maxRed = 0;
+//            int maxBlue = 0;
+//            if (AIPlaying) {
+//                for (int i = 0; i < SIZE; i+=2) {
+//                    int red = board.getCaseRed()[i];
+//                    int blue = board.getCaseBlue()[i];
+//                    if (red > 0) {
+//                        int caseToGo = board.getCaseRed()[(i+red)%SIZE];
+//                        int total = board.getCaseRed()[caseToGo] + board.getCaseBlue()[caseToGo];
+//                        while (total == 2 || total == 3) {
+//                            if (caseToGo < 0) {
+//                                caseToGo = SIZE - 1;
+//                            }
+//                            total = board.getCaseRed()[caseToGo] + board.getCaseBlue()[caseToGo];
+//                            if (total == 2 || total == 3) {
+//                                maxRed += 1;
+//                            }
+//                            caseToGo--;
+//                        }
+//
+//                    }
+//                    if (blue > 0) {
+//                        int caseToGo = board.getCaseBlue()[(i+(blue * 2))%SIZE];
+//                        int total = board.getCaseRed()[caseToGo] + board.getCaseBlue()[caseToGo];
+//                        while (total == 2 || total == 3) {
+//                            if (caseToGo < 0) {
+//                                caseToGo = SIZE - 1;
+//                            }
+//                            total = board.getCaseRed()[caseToGo] + board.getCaseBlue()[caseToGo];
+//                            if (total == 2 || total == 3) {
+//                                maxBlue += 1;
+//                            }
+//                            caseToGo--;
+//                        }
+//                    }
+//                }
+//                int suiteScore = max(maxRed, maxBlue);
+//                if (x + suiteScore > 32) {
+//                    return 64;
+//                } else {
+//                    x += suiteScore;
+//                }
+//            } else {
+//                for (int i = 1; i < SIZE; i+=2) {
+//                    int red = board.getCaseRed()[i];
+//                    int blue = board.getCaseBlue()[i];
+//                    if (red > 0) {
+//                        int caseToGo = board.getCaseRed()[(i+red)%SIZE];
+//                        int total = board.getCaseRed()[caseToGo] + board.getCaseBlue()[caseToGo];
+//                        while (total == 2 || total == 3) {
+//                            if (caseToGo < 0) {
+//                                caseToGo = SIZE - 1;
+//                            }
+//                            total = board.getCaseRed()[caseToGo] + board.getCaseBlue()[caseToGo];
+//                            if (total == 2 || total == 3) {
+//                                maxRed -= 1;
+//                            }
+//                            caseToGo--;
+//                        }
+//
+//                    }
+//                    if (blue > 0) {
+//                        int caseToGo = board.getCaseBlue()[(i+(blue * 2))%SIZE];
+//                        int total = board.getCaseRed()[caseToGo] + board.getCaseBlue()[caseToGo];
+//                        while (total == 2 || total == 3) {
+//                            if (caseToGo < 0) {
+//                                caseToGo = SIZE - 1;
+//                            }
+//                            total = board.getCaseRed()[caseToGo] + board.getCaseBlue()[caseToGo];
+//                            if (total == 2 || total == 3) {
+//                                maxBlue -= 1;
+//                            }
+//                            caseToGo--;
+//                        }
+//                    }
+//                }
+//                int suiteScore = min(maxRed, maxBlue);
+//                if (x + suiteScore > 32) {
+//                    return -64;
+//                } else {
+//                    x += suiteScore;
+//                }
 //            }
-
             return x;
         }
     } else {
@@ -160,15 +166,94 @@ int QuiesceIA::evaluate(Board board, bool isJ1, bool AIPlaying, int depth, int d
         } else {
             int x;
             x = J2Pieces - J1Pieces;
-            for (int i = 0; i < SIZE; i++) {
-                int c = board.getCaseRed()[i] + board.getCaseBlue()[i];
+            x += (nbJ2Seeds - nbJ1Seeds);
+//            int maxRed = 0;
+//            int maxBlue = 0;
+//            if (AIPlaying) {
+//                for (int i = 1; i < SIZE; i+=2) {
+//                    int red = board.getCaseRed()[i];
+//                    int blue = board.getCaseBlue()[i];
+//                    if (red > 0) {
+//                        int caseToGo = board.getCaseRed()[(i+red)%SIZE];
+//                        int total = board.getCaseRed()[caseToGo] + board.getCaseBlue()[caseToGo];
+//                        while (total == 2 || total == 3) {
+//                            if (caseToGo < 0) {
+//                                caseToGo = SIZE - 1;
+//                            }
+//                            total = board.getCaseRed()[caseToGo] + board.getCaseBlue()[caseToGo];
+//                            if (total == 2 || total == 3) {
+//                                maxRed += 1;
+//                            }
+//                            caseToGo--;
+//                        }
+//
+//                    }
+//                    if (blue > 0) {
+//                        int caseToGo = board.getCaseBlue()[(i+(blue * 2))%SIZE];
+//                        int total = board.getCaseRed()[caseToGo] + board.getCaseBlue()[caseToGo];
+//                        while (total == 2 || total == 3) {
+//                            if (caseToGo < 0) {
+//                                caseToGo = SIZE - 1;
+//                            }
+//                            total = board.getCaseRed()[caseToGo] + board.getCaseBlue()[caseToGo];
+//                            if (total == 2 || total == 3) {
+//                                maxBlue += 1;
+//                            }
+//                            caseToGo--;
+//                        }
+//                    }
+//                }
+//                int suiteScore = max(maxRed, maxBlue);
+//                if (x + suiteScore > 32) {
+//                    return 64;
+//                } else {
+//                    x += suiteScore;
+//                }
+//            } else {
+//                for (int i = 1; i < SIZE; i+=2) {
+//                    int red = board.getCaseRed()[i];
+//                    int blue = board.getCaseBlue()[i];
+//                    if (red > 0) {
+//                        int caseToGo = board.getCaseRed()[(i+red)%SIZE];
+//                        int total = board.getCaseRed()[caseToGo] + board.getCaseBlue()[caseToGo];
+//                        while (total == 2 || total == 3) {
+//                            if (caseToGo < 0) {
+//                                caseToGo = SIZE - 1;
+//                            }
+//                            total = board.getCaseRed()[caseToGo] + board.getCaseBlue()[caseToGo];
+//                            if (total == 2 || total == 3) {
+//                                maxRed -= 1;
+//                            }
+//                            caseToGo--;
+//                        }
+//
+//                    }
+//                    if (blue > 0) {
+//                        int caseToGo = board.getCaseBlue()[(i+(blue * 2))%SIZE];
+//                        int total = board.getCaseRed()[caseToGo] + board.getCaseBlue()[caseToGo];
+//                        while (total == 2 || total == 3) {
+//                            if (caseToGo < 0) {
+//                                caseToGo = SIZE - 1;
+//                            }
+//                            total = board.getCaseRed()[caseToGo] + board.getCaseBlue()[caseToGo];
+//                            if (total == 2 || total == 3) {
+//                                maxBlue -= 1;
+//                            }
+//                            caseToGo--;
+//                        }
+//                    }
+//                }
+//                int suiteScore = min(maxRed, maxBlue);
+//                if (x + suiteScore > 32) {
+//                    return -64;
+//                } else {
+//                    x += suiteScore;
+//                }
+//            }
 
-            }
             return x;
         }
-    }
-
-}
+    }}
 
 
 int QuiesceIA::evaluateDepth(Board board, bool isJ1, int depthMax) {
@@ -184,12 +269,13 @@ int QuiesceIA::evaluateDepth(Board board, bool isJ1, int depthMax) {
         }
     }
     if (nbMoves <= 2 && board.getNbSeeds() < 16) {
-        depth = depthMax + 3;
+        depth = depthMax + 4;
     } else if (nbMoves <= 5 && board.getNbSeeds() < 20) {
         depth = depthMax + 2;
-    } else if (nbMoves <= 7 && board.getNbSeeds() < 24) {
+    } else if (nbMoves <= 7 && board.getNbSeeds() < 30) {
         depth = depthMax + 1;
-    } else if (nbMoves <= 10 && board.getNbSeeds() < 55) {
+    }
+    else if (nbMoves <= 10 && board.getNbSeeds() < 55) {
         depth = depthMax;
     }
     else { // > 14
@@ -230,23 +316,23 @@ int QuiesceIA::minmax_alphaBeta(Board &currentBoard, bool AIPlaying, int depth, 
     int bestMove;
 
     array<pair<int, pair<int, bool>>, TAB_VALUES_SIZE> moves{};
-    for (int i = 0; i < SIZE; i++) {
-        for (int colorJ = 0; colorJ < 2; colorJ++) {
-            bool isRed = colorJ == 0;
-            if (currentBoard.checkValidMove(i, isRed)) {
-                int score = evaluate(currentBoard, isJ1, AIPlaying, depth, depthMax);
-                if (isRed) {
-                    moves[i] = make_pair(score,
-                                         make_pair(i, isRed));
-                } else {
-                    moves[i + SIZE] = make_pair(score,
-                                                make_pair(i, isRed));
-                }
-            }
-        }
-    }
-
-    std::sort(std::begin(moves), std::end(moves), myCompare);
+//    for (int i = 0; i < SIZE; i++) {
+//        for (int colorJ = 0; colorJ < 2; colorJ++) {
+//            bool isRed = colorJ == 0;
+//            if (currentBoard.checkValidMove(i, isRed)) {
+//                int score = evaluate(currentBoard, isJ1, AIPlaying, depth, depthMax);
+//                if (isRed) {
+//                    moves[i] = make_pair(score,
+//                                         make_pair(i, isRed));
+//                } else {
+//                    moves[i + SIZE] = make_pair(score,
+//                                                make_pair(i, isRed));
+//                }
+//            }
+//        }
+//    }
+//
+//    std::sort(std::begin(moves), std::end(moves), myCompare);
 
 
     if (AIPlaying) {
@@ -305,23 +391,23 @@ int QuiesceIA::quiesce(Board &board, bool AIPlaying, int depth, int depthMax, lo
     int bestMove;
 
     array<pair<int, pair<int, bool>>, TAB_VALUES_SIZE> moves{};
-    for (int i = 0; i < SIZE; i++) {
-        for (int colorJ = 0; colorJ < 2; colorJ++) {
-            bool isRed = colorJ == 0;
-            if (board.checkValidMove(i, isRed)) {
-                int score = evaluate(board, isJ1, AIPlaying, depth, depthMax);
-                if (isRed) {
-                    moves[i] = make_pair(score,
-                                         make_pair(i, isRed));
-                } else {
-                    moves[i + SIZE] = make_pair(score,
-                                                make_pair(i, isRed));
-                }
-            }
-        }
-    }
-
-    std::sort(std::begin(moves), std::end(moves), myCompare);
+//    for (int i = 0; i < SIZE; i++) {
+//        for (int colorJ = 0; colorJ < 2; colorJ++) {
+//            bool isRed = colorJ == 0;
+//            if (board.checkValidMove(i, isRed)) {
+//                int score = evaluate(board, isJ1, AIPlaying, depth, depthMax);
+//                if (isRed) {
+//                    moves[i] = make_pair(score,
+//                                         make_pair(i, isRed));
+//                } else {
+//                    moves[i + SIZE] = make_pair(score,
+//                                                make_pair(i, isRed));
+//                }
+//            }
+//        }
+//    }
+//
+//    std::sort(std::begin(moves), std::end(moves), myCompare);
 
     int standPat = evaluate(board, isJ1, AIPlaying, depth, depthMax);
     if (AIPlaying) {
