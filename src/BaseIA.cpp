@@ -77,8 +77,6 @@ int BaseIA::evaluateDepth(Board board, bool isJ1, int depthMax) {
         }
     }
     if (nbMoves <= 2 && board.getNbSeeds() < 16) {
-        depth = depthMax + 4;
-    } else if (nbMoves <= 5 && board.getNbSeeds() < 20) {
         depth = depthMax + 3;
     } else if (nbMoves <= 7 && board.getNbSeeds() < 25) {
         depth = depthMax + 2;
