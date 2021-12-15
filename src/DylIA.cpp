@@ -22,13 +22,13 @@ int DylIA::evaluate(Board board, bool isJ1, bool AIPlaying, int depth, int depth
         if (!AIPlaying && nbJ2Seeds <= 0) { // Si on est joueur 1 et qu'on évalue un coup de l'IA
             x = 64;
         } else if (AIPlaying && nbJ1Seeds <= 0) { // on évalue le coup de l'adversaire (J2)
-            x = -64;
+            return -64;
         } else if (J2Pieces > 32) {
-            x = -64;
+            return -64;
         } else if (J1Pieces > 32) {
             x = 64;
         } else if (nbSeeds < 8 && J1Pieces < J2Pieces) {
-            x = -64;
+            return -64;
         } else if (nbSeeds < 8 && J1Pieces > J2Pieces) {
             x = 64;
         } else {
@@ -40,18 +40,18 @@ int DylIA::evaluate(Board board, bool isJ1, bool AIPlaying, int depth, int depth
 
     } else {
         if (!AIPlaying && nbJ1Seeds <= 0) { // Si on est joueur 2 et qu'on évalue notre propre coup
-            return 64;
+            x = 64;
         }
         else if (AIPlaying && nbJ2Seeds <= 0) { // on évalue le coup de l'adversaire (J2)
             return -64;
         } else if (J1Pieces > 32) {
             return -64;
         } else if (J2Pieces > 32) {
-            return 64;
+            x = 64;
         } else if (nbSeeds < 8 && J2Pieces < J1Pieces) {
             return -64;
         } else if (nbSeeds < 8 && J2Pieces > J1Pieces) {
-            return 64;
+            x = 64;
         } else {
             x = J2Pieces - J1Pieces;
         }
