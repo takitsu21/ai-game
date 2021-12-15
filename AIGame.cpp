@@ -13,6 +13,8 @@
 #include "src/QuiesceIA.h"
 #include "src/DylIA.h"
 #include "src/AntIA1.h"
+#include "src/AllIA.h"
+#include "src/returnIA.h"
 
 void winner(const Board &board) {
 
@@ -101,11 +103,11 @@ pair<int, bool> getIAMove(AbstractIA *IA, Board board, bool isJ1, int depthMax, 
     }
 
     depthMax = IA->evaluateDepth(board, isJ1, depthMax);
-    if (oldTimer < 0.150 && *oldDepth >= depthMax) {
+    if (oldTimer < 0.150) {
         depthMax++;
-    } else if (oldTimer < 0.05 && *oldDepth >= depthMax) {
+    } else if (oldTimer < 0.08) {
         depthMax += 2;
-    } else if (oldTimer != 1000.0 && oldTimer >= 2.8 && *oldDepth >= depthMax) {
+    } else if (oldTimer != 1000.0 && oldTimer >= 2.5) {
         depthMax--;
     }
     cout << "Depth: " << depthMax << endl;
@@ -160,8 +162,8 @@ void gameLoop(Board board) {
         bool isRed;
         pair<int, bool> res;
 
-        AbstractIA *IA_J1 = new DylIA();
-        AbstractIA *IA_J2 = new DylIA();
+        AbstractIA *IA_J1 = new AllIA();
+        AbstractIA *IA_J2 = new AllIA();
 //        AbstractIA *IA_J1 = new QuiesceIA();
 //        AbstractIA *IA_J2 = new BaseIA();
 
@@ -204,7 +206,7 @@ void gameLoop(Board board) {
         x = res.first;
         isRed = res.second;
 
-        if (x == -1) {
+        if (!board.checkValidMove(x, isRed)) {
             cout << "Coup invalide !" << endl;
             continue;
         }

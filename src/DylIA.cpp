@@ -15,8 +15,6 @@ int DylIA::evaluate(Board board, bool isJ1, bool AIPlaying, int depth, int depth
     int nbSeeds = board.getNbSeeds();
     int nbJ1RedSeeds = board.nbJ1RedSeeds;
     int nbJ2RedSeeds = board.nbJ2RedSeeds;
-    int nbJ1BlueSeeds = board.nbJ1BlueSeeds;
-    int nbJ2BlueSeeds = board.nbJ2BlueSeeds;
 
     if (isJ1) {
         if (!AIPlaying && nbJ2Seeds <= 0) { // Si on est joueur 1 et qu'on évalue un coup de l'IA
